@@ -1,0 +1,327 @@
+﻿@{ ViewBag.Title = "Production"; }
+
+@Styles.Render("~/assets/css")
+<link rel="stylesheet" href="~/StyleSheets/Line Overview/Production/Layout.css" />
+
+<!--charts-->
+<link rel="stylesheet" href="~/StyleSheets/Charts/tooltipBars.css" />
+<link rel="stylesheet" href="~/StyleSheets/Charts/svg.css" />
+<link rel="stylesheet" href="~/StyleSheets/Charts/bargraphBars.css" />
+<link rel="stylesheet" href="~/StyleSheets/Charts/linegraphLines.css" />
+<link rel="stylesheet" href="~/StyleSheets/Charts/CircularBargraph.css" />
+
+<!--tab-->
+<link rel="stylesheet" href="~/StyleSheets/Line Overview/tabs.css" />
+
+<!--modal-->
+<link rel="stylesheet" href="~/StyleSheets/Line Overview/modal.css" />
+
+<!--table-->
+<link rel="stylesheet" href="~/StyleSheets/Tables/table_simple.css" />
+<link rel="stylesheet" href="~/StyleSheets/Tables/table_pagination.css" />
+
+<!--other Text-->
+<link rel="stylesheet" href="~/StyleSheets/Line Overview/Production/OtherText.css" />
+
+<!--Tooltip-->
+<link rel="stylesheet" href="~/StyleSheets/tooltip/leftTooltip.css" />
+
+<style>
+    .container-2 > .legend, .key, .name {
+        box-shadow: none !important;
+    }
+
+    .legend {
+        float: left;
+        font-family: "Verdana";
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .axis-label {
+        display: block !important;
+    }
+</style>
+
+<style type="text/css">
+    /*#charts_drilldown text {
+        fill: black;
+        font: 10px sans-serif;
+        text-anchor: end;
+    }
+
+    .axis text {
+        font: 10px sans-serif;
+    }
+
+    .axis path, .axis line {
+        fill: none;
+        shape-rendering: crispEdges;
+    }*/
+
+    /* body {
+        color: #eaeaea;
+        padding: 10px;
+    }*/
+
+    #c11 path {
+        stroke: gray;
+        fill: none;
+    }
+
+    #c22 path {
+        stroke: gray;
+        fill: none;
+    }
+
+    .close-btn {
+        font-size: 20px;
+        font-weight: bold;
+        color: #000;
+        float: right;
+        margin-top: -315px;
+        cursor: pointer;
+    }
+
+    .close-btn_1 {
+        font-size: 20px;
+        font-weight: bold;
+        color: #000;
+        float: right;
+        margin-top: -285px;
+        cursor: pointer;
+    }
+
+    #downtime_option {
+        border: 1px solid #E5E7E9 !important;
+        border-radius: 6px !important;
+        height: 20px !important;
+        padding: 0px !important;
+        float: right;
+        margin-right: 30px;
+    }
+</style>
+
+<header class="page-header">
+    <h2>
+        Line Overview - Production Dashboard
+    </h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("MainDashboard", "MainDashboard")">
+                    <div id="lefttooltip">
+                        <i class="fa fa-th"></i>
+                        <span class="tooltiptexts">
+                            <span class="name">Main Dashboard</span>
+                        </span>
+                    </div>
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("QualityDashboard", "LineOverView_Quality")" class="">
+                    <div id="lefttooltip">
+                        <i class="fa fa-check-square-o"></i>
+                        <span class="tooltiptexts">
+                            <span class="name">Quality Dashboard</span>
+                        </span>
+                    </div>
+                </a>
+            </li>
+            @*<li class="breadcrumb-item">
+                    <a href="@Url.Action("Maintenance", "LineOverview")">
+                        <div id="lefttooltip">
+                            <i class="fa  fa-wrench"></i>
+                            <span class="tooltiptexts">
+                                <span class="name">Maintenance Dashboard</span>
+                            </span>
+                        </div>
+                    </a>
+                </li>*@
+        </ol>
+    </div>
+</header>
+
+
+<div class="container-main">
+    @*<div class="container-main-title">Production Dashboard</div>*@
+    <div class="tab-tiles">
+        <ul id="tabList">
+            <li data-tab="S1" class="add">S1</li>
+            <li data-tab="S2" class="add">S2</li>
+            <li data-tab="S3" class="add">S3</li>
+        </ul>
+    </div>
+    <div class="tab-container" id="tabContainer">
+
+    </div>
+</div>
+
+
+
+
+@*<div class="container-modal container-modal-data">
+        <div class="modal-content">
+            <div class="close-modal">
+                <span class="close-icon"><i class="fa fa-times"></i></span>
+            </div>
+            <div class="box-2" id="chartTarget11">
+            </div>
+        </div>
+    </div>*@
+
+
+<div class="container-modal container-modal-data-1">
+    <div class="modal-content">
+        <div class="close-modal">
+            <span class="close-icon"><i class="fa fa-times"></i></span>
+        </div>
+        <div class="modal-title">
+            Top 10 Overall Line Breakdown Analysis
+        </div>
+        <div class="container-2">
+            <div class="box-3" id="charts11">
+            </div>
+            <div class="box-3" id="charts12">
+            </div>
+            <div class="box-3" id="charts13">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-modal container-modal-data-2">
+    <div class="modal-content">
+        <div class="close-modal">
+            <span class="close-icon"><i class="fa fa-times"></i></span>
+        </div>
+        <div class="box-2" id="charts13">
+        </div>
+    </div>
+</div>
+<div class="container-modal container-modal-data-3">
+    <div class="modal-content">
+        <div class="close-modal">
+            <span class="close-icon"><i class="fa fa-times"></i></span>
+        </div>
+        <div class="box-2" id="chartTarget12">
+        </div>
+    </div>
+</div>
+<div class="container-modal container-modal-data-4">
+    <div class="modal-content">
+        <div class="close-modal">
+            <span class="close-icon"><i class="fa fa-times"></i></span>
+        </div>
+        <div class="box-2" id="chartTarget13">
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+<script src="~/Scripts/LineOverview/Tabs.js"></script>
+<script src="~/Scripts/Charts/Bargraph/Bargraph.js"></script>
+<script src="~/Scripts/Charts/BarLinegraph/BargraphLinegraphTarget.js"></script>
+<script src="~/Scripts/Charts/BarLinegraph/BargraphGroupedBarsLine.js"></script>
+<script src="~/Scripts/Charts/CircularBargraph/Cicularbargraph.js"></script>
+<script src="~/Scripts/LineOverview/Production/ProdDataCalls.js"></script>
+<script src="~/Scripts/LineOverview/Production/OtherText.js"></script>
+<script src="~/Scripts/LineOverview/Modal.js"></script>
+<script src="~/Scripts/Tables/table_pagination.js"></script>
+
+
+<script>
+	var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+	var sURL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+	var company = '@Session["CompanyCode"]';
+	var plant = '@Session["PlantCode"]';
+	var line = '@Session["LineCode"]';
+	var R_url = '@Url.Action("Login", "Main")';
+    var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+    var web_url = '@System.Configuration.ConfigurationManager.AppSettings["web_url"]';
+    var dynamicContent = `<div class="container-1" style="height:290px !important;">
+                                <div class="box-2" id="chartKPI" style="padding:4px !important;margin:4px !important;flex:5 !important;">
+                                    <div class="box2-1" style="padding:0px !important;margin:0px !important;">
+									    EOL - Key Performance Indicator
+                                        <div id="lefttooltip">
+                                            <i class="glyphicon glyphicon-info-sign gi-8x"></i>
+                                            <span class="tooltiptexts">
+                                            <span class="name" id="batchDetails"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="box2-2" style="margin-top:-14px !important;">
+                                        <div class="box-21">
+                                            <div class="box-211" style="height:130px;margin-bottom:-18px !important;">
+
+										    </div>
+                                            <div class="box-211" id="KPI_APQ">
+
+										    </div>
+                                        </div>
+                                        <div class="box-22">
+                                            <div class="box-221" id="KPI_Prod">
+
+										    </div>
+                                            <div class="box-221" id="KPI_CT" style="height:91px;" >
+
+										    </div>
+                                            <div class="box-221" id="KPI_Alarm" style="display:none">
+
+										    </div>
+
+                                        </div>
+                                    </div>
+							    </div>
+                            <div class="box-3 add" style="flex:4 !important;order:2 !important;" >
+<span style="padding-left:100px;font-weight:bold;">Hourly Production</span>
+<div id="legend_chartTarget" style="box-shadow:none;margin-top:-10px;"></div>
+                                <div  id="chartTarget" style="height:238px;margin-top:-30px;box-shadow:none;">
+                                </div>
+                            </div>
+<div class="box-3"  style="flex:4 !important;order:3 !important;" >
+
+<span style="padding-left:100px;font-weight:bold;">Top 10 Station-wise Rejection </span> <br/>
+<span style="Target_CTfont-weight:bold;float:right;">Target CT : <span id="Target_CT"> </span> Sec  </span>
+                                 <div  id="chartTarget11"id="chartTarget2"  style="height:238px;margin-top:-17px;box-shadow:none;">
+                                </div>
+</div>
+                            </div>
+
+                            <div class="container-2" >
+                                <div class="box-3" style="flex:2 !important;" id="utli_overview">
+                                </div>
+                                <div class="box-3" id="chartTarget1">
+                                </div>
+                            </div>
+
+                            <div class="container-2" style="display:none;">
+
+                                <div class="box-3 add" id="charts1">
+                                </div>
+                                <div class="box-3 add" id="charts">
+                                </div>
+                            </div>
+ <div class="container-2" id="charts_drilldown" style="height:330px !important;">
+    <div class="box-3" id="charts2">
+    </div>
+    <div class="box-3">
+        <select id="downtime_option" name="downtime_option" onchange="get_value();">
+            <option value="1">Duration</option>
+            <option value="2">Occurence</option>
+        </select>
+        <div id="c22" style="height:298px;box-shadow:none;"></div>
+    </div>
+    <div class="box-3" id="c11">
+    </div>
+</div>`;
+	Tabs(dynamicContent);
+    ProdDataCalls(URL, sURL, company, plant, line, R_url, user1, web_url);
+
+
+
+</script>
+
+

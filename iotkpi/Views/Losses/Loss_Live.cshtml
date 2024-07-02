@@ -1,0 +1,352 @@
+﻿
+@{
+    /**/
+
+    ViewBag.Title = "Loss_Live";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<header class="page-header">
+    <h2> Latest Machine Events </h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            @*<li>
+                <a href="@Url.Action("Loss_Historic","Losses")">
+                    <span>Loss Historic</span>
+                </a>
+            </li>*@
+            @*<li><span>Live</span></li>*@
+        </ol>
+    </div>
+</header>
+
+@if (ViewContext.Controller.HasPermission("LossLive-View"))
+{
+
+
+    <div class="row" id="Historic" style="display:block;">
+        <div class="col-md-2"></div>
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;"> Latest Machine Events </h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Select Machine  <span class="required">*</span></label>
+                        <div class="col-sm-2">
+                            <select class="form-control" id="Machine">
+                                <option value="0">Select</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-4" style="text-align:right;">
+                            <button type="button" id="Search_live" class="btn btn-primary">Search</button>
+                            @*<button type="reset" id="cancel" class="btn btn-danger cancel">Reset</button>*@
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="row" id="">
+        <div class="col-md-2"></div>
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;"> Live </h2>
+                </header>
+                <div>
+                    <div class='col-sm-3 col-md-3 col-lg-3' style='align-content:center;padding-left:2%;'>
+                        <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default" style="width:100%;float:left;background-color:#002929;color:white;">
+                            <span id="" style="float:left;font-weight:bold;"> Total UpTime : </span> <span id="tot_uptime" style="float:left;font-weight:bold;"></span>
+                        </button>
+                    </div>
+                    <div class='col-sm-3 col-md-3 col-lg-3' style='align-content:center;padding-left:2%;'>
+                        <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default" style="width:100%;float:left;background-color:#002929;color:white;">
+                            <span id="" style="float:left;font-weight:bold;"> Total DownTime : </span> <span id="tot_downtime" style="float:left;font-weight:bold;"></span>
+                        </button>
+                    </div>
+                    <div class='col-sm-3 col-md-3 col-lg-3' style='align-content:center;padding-left:2%;'>
+                        <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default" style="width:100%;float:left;background-color:#002929;color:white;">
+                            <span id="" style="float:left;font-weight:bold;">Total LossTime : </span> <span id="tot_losstime" style="float:left;font-weight:bold;"></span>
+                        </button>
+                    </div>
+                    <div class='col-sm-3 col-md-3 col-lg-3' style='align-content:center;padding-left:2%;'>
+                        <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default" style="width:100%;float:left;background-color:#002929;color:white;">
+                            <span id="" style="float:left;font-weight:bold;">Total BreakTime : </span> <span id="tot_breaktime" style="float:left;font-weight:bold;"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <table class="table table-bordered table-striped mb-none" id="" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                            <thead style="background-color:teal;color:white;">
+                                <tr>
+                                    <th>  </th>
+                                    <th> Last Reason </th>
+                                    <th> Last Occurence</th>
+                                    <th>Duration</th>
+                                    <th>Total Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody class="details">
+                                <tr>
+                                    <td>Auto Running</td>
+                                    <td>-</td>
+                                    <td> <span id="auto_last_occ" style="float:left;font-weight:bold;"></span> </td>
+                                    <td><span id="auto_dur" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="auto_tot_dur" style="float:left;font-weight:bold;"></span></td>
+
+
+
+                                </tr>
+                                <tr>
+                                    <td>Stoppage</td>
+                                    <td><span id="stoppage_last_reason" style="float:left;font-weight:bold;"></span></td>
+                                    <td> <span id="stoppage_last_occ" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="stoppage_last_duration" style="float:left;font-weight:bold;"></span></td>
+
+                                    <td><span id="stoppage_tot_duration" style="float:left;font-weight:bold;"></span></td>
+
+
+
+                                </tr>
+                                <tr>
+                                    <td>Loss</td>
+                                    <td><span id="loss_last_reason" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="loss_last_occ" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="loss_last_duration" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="loss_tot_duration" style="float:left;font-weight:bold;"></span></td>
+
+                                </tr>
+                                <tr>
+                                    <td>Break</td>
+                                    <td><span id="break_last_reason" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="break_last_occ" style="float:left;font-weight:bold;"></span></td>
+                                    <td><span id="break_last_duration" style="float:left;font-weight:bold;"></span></td>
+
+                                    <td><span id="break_tot_duration" style="float:left;font-weight:bold;"></span></td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+<script type="text/javascript">
+
+    window.machinecode=''
+    $(document).ready(function () {
+
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+         var live_URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+        var data_machine = {
+            "QueryType": "Get_machine",
+            "Parameter": '@Session["CompanyCode"]',
+            "Parameter1": '@Session["PlantCode"]',
+        };
+
+         var myData = {
+                        "Flag": "Subsystem",
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                        "LineCode":'@Session["LineCode"]',
+                    };
+        $.ajax({
+            type: "POST",
+            url: '../Main/GetSettingdatas1',
+            data: myData,
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            async:false,
+
+            dataType: "json",
+
+            success: function (response)
+            {
+                var s = '<option value="">Select Machine</option>';
+                //var s = '';
+
+                if (response.data.length > 0) {
+                    window.machinecode = response.data[0].Code
+                    console.log("window", window);
+                }
+                for (var i = 0; i < response.data.length; i++) {
+                    s += '<option value="' + response.data[i].Code + '">' + response.data[i].Code + "-" + response.data[i].Name + '</option>';
+                }
+                $("#Machine").html(s);
+
+            }
+        })
+        getlivedata();
+    });
+</script>
+
+<script>
+
+    document.getElementById("Search_live").addEventListener("click", function () {
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+         var live_URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+        window.machinecode = $("#Machine").val();
+        var Machine = $("#Machine").val();
+
+        $('.updated_time').text(new Date().toLocaleString());
+        $('.shift').text("N/A");
+
+        $('.shift_n').show();
+        $('.updated_time_n').show();
+
+        var myData = {
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "Line": '@Session["LineCode"]',
+            "Machine": Machine,
+        };
+        $.ajax({
+            type: "POST",
+            url: live_URL + 'api/Losses/Get_Loss_live_details',
+            data: myData,
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            dataType: "json",
+            beforeSend: function () {
+                $('.loading').show();
+            },
+            complete: function () {
+                $('.loading').hide();
+            },
+            success: function (response) {
+                if (response.data.Table.length != 0)
+                {
+
+                    $("#tot_uptime").text(response.data.Table[0].up_time);
+                    $("#tot_downtime").text(response.data.Table[0].down_time);
+                    $("#tot_losstime").text(response.data.Table[0].loss_time);
+                    $("#tot_breaktime").text(response.data.Table[0].break_time);
+
+                    $("#stoppage_last_reason").text(response.data.Table[0].Alarm_desc);
+                    $("#loss_last_reason").text(response.data.Table[0].Loss_desc);
+                    $("#auto_last_occ").text(response.data.Table[0].Auto_last_occ);
+
+                    $("#stoppage_last_occ").text(response.data.Table[0].Stoppage_last_occ);
+                    $("#loss_last_occ").text(response.data.Table[0].Loss_last_occ);
+
+                    $("#auto_dur").text(response.data.Table[0].Auto_duration);
+                    $("#stoppage_last_duration").text(response.data.Table[0].stoppage_duration);
+                    $("#loss_last_duration").text(response.data.Table[0].Loss_duration);
+                    $("#break_last_duration").text(response.data.Table[0]['Break Duration']);
+
+                    $("#auto_tot_dur").text(response.data.Table[0].up_time);
+                    $("#stoppage_tot_duration").text(response.data.Table[0].down_time);
+                    $("#loss_tot_duration").text(response.data.Table[0].loss_time);
+                    $("#break_tot_duration").text(response.data.Table[0].break_time);
+
+                    $("#break_last_reason").text(response.data.Table[0].break_reason);
+                    $("#break_last_occ").text(response.data.Table[0].break_lastocc);
+
+
+                }
+            },
+            error: function (response) {
+
+            }
+        });
+    });
+    function getlivedata() {
+         var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+         var live_URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+       // var Machine = $("#Machine").val();
+        var Machine = window.machinecode
+        var myData = {
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "Line": '@Session["LineCode"]',
+            "Machine": Machine,
+        };
+        $.ajax({
+            type: "POST",
+            url: live_URL + 'api/Losses/Get_Loss_live_details',
+            data: myData,
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            dataType: "json",
+            beforeSend: function () {
+               // $('.loading').show();
+            },
+            complete: function () {
+                $('.loading').hide();
+            },
+            success: function (response) {
+                if (response.data.Table.length != 0)
+                {
+
+                    $("#tot_uptime").html(response.data.Table[0].up_time);
+                    $("#tot_downtime").html(response.data.Table[0].down_time);
+                    $("#tot_losstime").html(response.data.Table[0].loss_time);
+                    $("#tot_breaktime").html(response.data.Table[0].break_time);
+
+                    $("#stoppage_last_reason").html(response.data.Table[0].Alarm_desc);
+                    $("#loss_last_reason").html(response.data.Table[0].Loss_desc);
+                    $("#auto_last_occ").html(response.data.Table[0].Auto_last_occ);
+
+                    $("#stoppage_last_occ").html(response.data.Table[0].Stoppage_last_occ);
+                    $("#loss_last_occ").html(response.data.Table[0].Loss_last_occ);
+
+                    $("#auto_dur").html(response.data.Table[0].Auto_duration);
+                    $("#stoppage_last_duration").html(response.data.Table[0].stoppage_duration);
+                    $("#loss_last_duration").html(response.data.Table[0].Loss_duration);
+                    $("#break_last_duration").html(response.data.Table[0]['Break Duration']);
+
+                    $("#auto_tot_dur").html(response.data.Table[0].up_time);
+                    $("#stoppage_tot_duration").html(response.data.Table[0].down_time);
+                    $("#loss_tot_duration").html(response.data.Table[0].loss_time);
+                    $("#break_tot_duration").html(response.data.Table[0].break_time);
+
+                    $("#break_last_reason").html(response.data.Table[0].break_reason);
+                    $("#break_last_occ").html(response.data.Table[0].break_lastocc);
+
+                    
+
+
+                }
+            },
+            error: function (response) {
+
+            }
+        });
+        setTimeout(getlivedata, 120000);
+    }
+
+
+</script>

@@ -1,0 +1,1125 @@
+@*@model IEnumerable<PlanDigitization_web.Models.Alarm>*@
+@{
+    ViewBag.Title = "Alarm_data";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #datatable-default_1_filter {
+        float: right;
+    }
+</style>
+
+<header class="page-header">
+    <h2> Alarm Settings Details </h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            <li><span>Settings</span></li>
+            <li><span>Alarms</span></li>
+        </ol>
+    </div>
+</header>
+
+<div class="row">
+
+    <div class="col-md-12">
+
+        <form id="form" action="@Url.Action("Upload_Alarmdetails","UserSettings")" enctype="multipart/form-data" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;height:60px;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;float:left;">Upload Alarm Data Details</h2>
+                    <p style="float:right;">
+                        Sample Format: <a href="@Url.Action("download_sample_sheet","UserSettings")"><img src="~/assets1/images/excel.ico" width="25" height="25" title="Sample" alt="Sample" /></a>
+                </header>
+                <div class="panel-body">
+
+                    <div class="form-group">
+
+                        <label class="col-sm-2 control-label" style="right: 10px;top: 5px;"> Choose File <span class="required"><span class="required">*</span></label>
+                        <div class="col-sm-2"style="right: 100px;">
+                            <input type="file" class="form-control" title="*" id="file" name="postedFile" onchange="return funvalidationfile(this);">
+                            @*<a href="" onclick="downloadsample()"><img src="~/assets1/images/excel.ico" width="25" height="25" title="Sample" alt="excel" /></a>*@
+                        </div>
+                        <label class="col-sm-2 control-label" style="right: 80px;top: 5px;">Machine Code <span class="required">*</span></label>
+                        <div class="col-sm-2" style="right: 155px;">
+                            <select class="form-control " name="Machine_Code" id="Machine_id" title="Select Machine" required>
+                                <option value="">Select Machine</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4   " style="text-align:right;">
+
+                            <button type="button" class="btn btn-success" id="search">search</button>
+                            <button type="submit" class="btn btn-primary" id="Upload">Upload</button>
+                            <button class="btn btn-danger" id="Delete_Machine">Delete All</button>
+                            <button type="button" class="btn btn-warning" id="Reset">Reset</button>
+                        </div>
+                        <p style="float: right;  color: black;">*Select machine and click on search to download existing list</p>
+                    </div>
+                </div>
+            </section>
+        </form>
+    </div>
+</div>
+<!-- Add New Alarm-->
+<div class="row" id="divnew" style="display:none;">
+    <div class="col-md-12">
+        <form class="form" action="@Url.Action("Insert_Alarmdetails","UserSettings")" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">Add New Alarm</h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+
+                        @*<label class="col-sm-2 control-label"> Line Code <span class="required">*</span></label>
+                            <div class="col-sm-4">
+                                <select class="form-control " name="Line_Code" id="Line" title="Select Line" required></select>
+                            </div>*@
+                        <label class="col-sm-2 control-label">Machine Code <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <select class="form-control " name="Machine_Code" id="Machine" title="Select Machine" required>
+                                <option value="">Select Line First</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Alarm ID <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="AlarmID" name="Alarm_ID" class="form-control" title="Enter ID" placeholder="Alarm ID" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Alarm Description <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="AlarmDesc" name="Alarm_Description" class="form-control" title="Enter Description" placeholder="Description" required />
+                        </div>
+                    </div>
+
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Cancel</button>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </form>
+
+    </div>
+</div>
+
+<!-- Operator Alarm Details-->
+<div class="row" id="divdetails" style="display:block;">
+
+    <div class="col-md-12">
+        <section class="panel">
+
+            <header class="panel-heading" style="background-color:teal;color:white;">
+
+                <div class="panel-actions" style="width:340px;">
+
+                    @if (ViewContext.Controller.HasPermission("AlarmSetting-Add"))
+                    {
+                        <button class="btn btn-success" id="add"><i class="fa fa-plus" aria-hidden="true"> Add New</i></button>}
+                    @if (ViewContext.Controller.HasPermission("AlarmSetting-Edit"))
+                    {
+                        <button class="btn btn-primary" id="onselectedit"><i class="fa fa-pencil-square-o" aria-hidden="true"> Edit</i></button>
+                    }
+                   
+
+                    @if (ViewContext.Controller.HasPermission("AlarmSetting-Delete"))
+                    {
+
+
+
+                        <button class="btn btn-danger" id="onselectdelete"><i class="fa fa-trash-o" aria-hidden="true"> Delete</i></button>}
+
+                <form id="form" action="@Url.Action("DownloadExcel","UserSettings")" enctype="multipart/form-data" method="post">
+
+                      <input type="hidden" id="Parameter3" name="Parameter3" />
+                      <button class="btn btn-success" id="" type="submit" style="float:right;margin-top:-35px;">
+                        Download
+                    </button>
+                </form>
+
+                    @*<button class="btn btn-success" id="download">
+           <i>Download Excel</i>
+        </button>*@
+
+                </div>
+
+                <h2 class="panel-title" style="color:white;"> List of Alarms  </h2>
+                <p style="float:right;padding-top:2%;color:black;">*Select record to edit/delete</p>
+
+            </header>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="panel-body">
+
+                        @if (ViewContext.Controller.HasPermission("AlarmSetting-View"))
+                        {@*<table class="table table-bordered table-striped mb-none" id="datatable-default">*@
+                        <table class="table table-bordered table-striped mb-none" id="datatable-default_1">
+                            <thead style="background-color:teal;color:white;">
+                                <tr>
+                                    <th class="centercls"> S.No </th>
+                                    <th>Line</th>
+                                    <th>Machine</th>
+                                    <th> Alarm ID </th>
+                                    <th>Alarm Description</th>
+                                    <th>File Name</th>
+                                </tr>
+                            </thead>
+                            <tbody class="search_table_new">
+                            </tbody>
+                        </table> }
+                    else
+                    {
+                        <h2>View Permission is denied</h2>}
+
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+
+    </div>
+
+
+
+
+</div>
+
+<!--Edit Alarm Details-->
+<div class="row" id="divedit" style="display:none;">
+    <div class="col-md-12">
+        <form class="form" action="@Url.Action("Update_Alarmdetails","UserSettings")" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">Update Alarm</h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <input type="hidden" id="eID" name="A_ID" />
+                        @*<label class="col-sm-2 control-label"> Line Code <span class="required">*</span></label>
+                            <div class="col-sm-4">
+                                <select class="form-control " name="Line_Code" id="eLine" title="Select Line" required></select>
+                            </div>*@
+                        <label class="col-sm-2 control-label">Machine Code <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <select class="form-control " name="Machine_Code" id="eMachine" title="Select Machine" required></select>
+                        </div>
+                        <label class="col-sm-2 control-label">Upload File <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <select class="form-control " name="Help" id="eFile" title="Select File" required></select>
+
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Alarm ID <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eAlarmID" name="Alarm_ID" readonly class="form-control" title="Enter ID" placeholder="Alarm ID" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Alarm Description <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eAlarmDesc" name="Alarm_Description" class="form-control" title="Enter Description" placeholder="Description" required />
+                        </div>
+                    </div>
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Cancel</button>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </form>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+
+@if (@TempData["message"] != null)
+{
+    <script type="text/javascript">
+
+    $(function () {
+
+         var msg = '@TempData["message"]';
+         var count = '@TempData["count"]';
+
+        if (msg == "Inserted") {
+            swal({
+                icon: "success",
+                title: "Details Added Successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "Updated") {
+            swal({
+                icon: "success",
+                title: "Details Updated Successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "file_Uploaded") {
+            swal({
+                icon: "success",
+                title: "Details uploaded successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "Already Alarm_ID") {
+            swal({
+                icon: "error",
+                title: "Failed to Add.Alarm ID already exists",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "Already Alarm_Description") {
+            swal({
+                icon: "error",
+                title: "Failed to Add.Alarm Description already exists",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "Already") {
+            swal({
+                icon: "error",
+                title: "Data Already Exists",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg = "already_exist") {
+            swal({
+                icon: "error",
+                title: "Data Already Exists,Please Delete the all Data",
+                button: true,
+                timer: 4500
+            })
+        }
+              else if (msg == "File") {
+            swal({
+                icon: "error",
+                title: "File already Exists.Rename file or add new file...!",
+                button: true,
+                timer: 4500
+            })
+            msg = "";
+        }
+        else {
+            swal({
+                icon: "error",
+                title: "Failed to Add",
+                button: true,
+                timer: 4500
+            })
+        }
+    });
+
+    </script>
+}
+
+<script type="text/javascript">
+    $("#add").click(function () {
+        $("#divnew").show();
+        $("#divdetails").hide();
+        $("#divedit").hide();
+    });
+
+    $(".cancel").click(function () {
+        $("#divnew").hide();
+        $("#divdetails").show();
+        $("#divedit").hide();
+    });
+
+</script>
+
+
+
+
+<script type="text/javascript">
+
+    function load_data() {
+        var Machine_code = $("#Machine_id").val();
+
+        if (Machine_code == "") {
+            swal({
+                icon: "warning",
+                title: "Please Select Machine Code",
+                button: true,
+                closeModal: false
+            })
+        }
+        else
+        {
+            var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+            var myDatas1 = {
+                "QueryType": "Get_alarm_details",
+                "Parameter1": '@Session["PlantCode"]',
+                "Parameter": '@Session["CompanyCode"]',
+                "Parameter2": '@Session["LineCode"]',
+                "Parameter3": Machine_code,
+                "PlantCode": '@Session["PlantCode"]',
+                "CompanyCode": '@Session["CompanyCode"]',
+                "LineCode": '@Session["LineCode"]',
+            };
+
+            $.ajax({
+                type: 'POST',
+                data: myDatas1,
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+                url: URL + 'api/Values/Search_details',
+                dataType: "json",
+                success: function (response) {
+
+                    if (response.status != "Error") {
+                        $(".search_table_new").text("");
+
+
+                        var rowsCnt = document.getElementById("datatable-default_1").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                        if (rowsCnt > 0) {
+                            for (var i = 0; i < rowsCnt; i++) {
+                                document.getElementById("datatable-default_1").deleteRow(1);
+                            }
+                        }
+
+                        if ($.fn.DataTable.isDataTable('#datatable-default_1')) {
+                            $('#datatable-default_1').DataTable().clear();
+                        }
+
+                        if ($.fn.DataTable.isDataTable('#datatable-default_1')) {
+                            $('#datatable-default_1').DataTable().destroy();
+                        }
+
+                        var j = 1;
+                        for (var i = 0; i < response.data.Table.length; i++) {
+
+                            var newRow = $("<tr class='gradeX'>");
+                            var cols = '';
+                            cols += "<td> " + j + "</td> ";
+                            /*   cols += "<td> " + response.data.Table[i].A_ID + "</td> ";*/
+                            cols += "<td> " + response.data.Table[i].FunctionName + "</td> ";
+                            cols += "<td> " + response.data.Table[i].AssetName + "</td> ";
+                            cols += "<td class='A_ID'> <span style='display:none;'>" + response.data.Table[i].A_ID +"</span> " + response.data.Table[i].Alarm_ID + "</td> ";
+                            cols += "<td> " + response.data.Table[i].Alarm_Description + "</td> ";
+                            cols += "<td> " + response.data.Table[i].FileName + "</td> ";
+                            cols += "</tr>";
+                            newRow.append(cols);
+                            $(".search_table_new").append(newRow);
+                            j++;
+                        }
+
+                        $('#datatable-default_1').DataTable({
+                            "responsive": true,
+                            "autoWidth": false,
+                            "scrollCollapse": true,
+                            //dom: 'Bfrtip',
+                            //buttons: [
+                            //    'csv', 'excel'
+                            //]
+                        });
+
+
+                    }
+
+                    else {
+
+                        $(".search_table_new").text(response.msg);
+                        /*  $("#datatable-default").hide();*/
+
+                    }
+
+                },
+                error: function (response) {
+                        swal({
+                            icon: "warning",
+                            title: response.responseText,
+                            button: true,
+                            closeModal: false
+                        })
+
+
+
+
+                }
+            }).error(function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+
+
+            });
+        }
+    }
+
+    $(function () {
+        var myData = {
+            "Flag": "Subsystem",
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "LineCode": '@Session["LineCode"]',
+        };
+        var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+        var Gd_url = '@Url.Action("GetSettingdatas1", "Main")';
+
+        $.ajax({
+            type: "POST",
+            url: Gd_url,
+            data: myData,
+            dataType: "json",
+            success: function (response) {
+                var s = '<option value="">Select Machine</option>';
+                for (var i = 0; i < response.data.length; i++) {
+                    if (response.data.length === 1) {
+                        s += '<option value="' + response.data[i].Code + '" selected>' + response.data[i].Name + '</option>';
+                    } else {
+                        s += '<option value="' + response.data[i].Code + '">' + response.data[i].Name + '</option>';
+                    }
+
+                }
+                $("#Machine").html(s);
+            },
+            error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });
+
+
+        var myData = {
+            "Flag": "Subsystem",
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "LineCode": '@Session["LineCode"]',
+        };
+        var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+        var Gd_url = '@Url.Action("GetSettingdatas1", "Main")';
+
+        $.ajax({
+            type: "POST",
+            url: Gd_url,
+            data: myData,
+            dataType: "json",
+            success: function (response) {
+                var s = '<option value="">Select Machine</option>';
+                for (var i = 0; i < response.data.length; i++) {
+                    s += '<option value="' + response.data[i].Code + '"selected>' + response.data[i].Name + '</option>';
+                }
+                $("#Machine_id").html(s);
+
+                var mac_id = $("#Machine_id").val();
+
+                $("#Parameter3").val(mac_id);
+
+                load_data();
+            },
+            error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });
+
+    });
+
+    //--upload file check validation-----
+
+    function funvalidationfile(ctrl) {
+        for (var i = 0; i < ctrl.files.length; i++) {
+            var file = ctrl.files[i];
+            var FileName = file.name;
+            var FileExt = FileName.substr(FileName.lastIndexOf('.') + 1);
+            if (FileExt.toUpperCase() != "XLS") {
+                if (FileExt.toUpperCase() != "XLSX") {
+                    $(ctrl).val("");
+                    swal({
+                        icon: "warning",
+                        title: " Please upload files having extensions: .XLS and .XLSX only ",
+                        button: true,
+                        closeModal: false
+                    })
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        var myData = {
+            "Flag": "Subsystem",
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "LineCode": '@Session["LineCode"]',
+        };
+        var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+        var Gd_url = '@Url.Action("GetSettingdatas1", "Main")';
+
+        $.ajax({
+            type: "POST",
+            url: Gd_url,
+            data: myData,
+            dataType: "json",
+            success: function (response) {
+                var s = '<option value="">Select Machine</option>';
+                for (var i = 0; i < response.data.length; i++) {
+                    s += '<option value="' + response.data[i].Code + '">' + response.data[i].Name + '</option>';
+                }
+                $("#eMachine").html(s);
+            },
+            error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });
+    });
+
+</script>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        //Function to select row
+        $("#datatable-default_1 tbody").on('click', 'tr', function () {
+            var bl;
+            var editval;
+            if ($(this).hasClass('selected')) {
+                bl = "row selected";
+                $(this).removeClass('selected');
+            }
+            else {
+                bl = "row unselected";
+                $(this).addClass('selected').siblings().removeClass('selected');
+                editval = $(this).find('td:first').html();
+
+            }
+        });
+    });
+</script>
+<style>
+    #datatable-default_1 tbody tr:not(.table-header) {
+        cursor: pointer;
+    }
+
+    #datatable-default_1 tbody .selected:not(.table-header) {
+        background-color: brown;
+        color: #FFF;
+    }
+</style>
+
+<script type="text/javascript">
+
+     var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+    $("#Reset").click(function () {
+        window.location = '@Url.Action("Alarm_data","UserSettings")'
+    });
+
+
+    $("#onselectedit").on("click", function () {
+        //function to retrieve id on select to edit the row
+        var CompanyCode;
+        $("#datatable-default_1 tbody tr").each(function () {
+            if ($(this).hasClass('selected')) {
+                var row = $(this);
+                var A_ID = row.find(".A_ID span").html();
+
+                var myData = {
+                    "QueryType": "Edit_alarm",
+                    "Parameter": A_ID,
+                    "CompanyCode": '@Session["CompanyCode"]',
+                    "PlantCode": '@Session["PlantCode"]',
+                    "LineCode": '@Session["LineCode"]',
+                };
+
+                $("#divedit").show();
+                $("#divnew").hide();
+                $("#divdetails").hide();
+                var R_url = '@Url.Action("Login", "Main")';
+                var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+                $.ajax({
+                    type: "POST",
+                    url: URL + 'api/Values/User_settings_details',
+                    data: myData,
+                    headers: {
+                        Authorization: 'Bearer ' + user1
+                    },
+                    dataType: "json",
+                    beforeSend: function () {
+                        $('.loading').show();
+                    },
+                    complete: function () {
+                        $('.loading').hide();
+                    },
+                    success: function (response) {
+
+                        $('#eID').val(response.data.Table[0].A_ID);
+                        $('#eAlarmID').val(response.data.Table[0].Alarm_ID);
+                        $('#eAlarmDesc').val(response.data.Table[0].Alarm_Description);
+
+                        var linecode = '@Session["LineCode"]';
+
+
+
+                        var myDatas1 = {
+                            "QueryType": "Assets",
+                            "Parameter": '@Session["PlantCode"]',
+                            "Parameter1": '@Session["CompanyCode"]',
+                            "Parameter2": linecode,
+                            "CompanyCode": '@Session["CompanyCode"]',
+                            "PlantCode": '@Session["PlantCode"]',
+                            "LineCode": '@Session["LineCode"]',
+                        };
+
+                        var myDatas2 = {
+                            "QueryType": "File_details",
+
+                            "CompanyCode": '@Session["CompanyCode"]',
+                            "PlantCode": '@Session["PlantCode"]',
+                            "LineCode": '@Session["LineCode"]',
+                        };
+
+                        var R_url = '@Url.Action("Login", "Main")';
+                        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+                        $.ajax({
+                            type: "POST",
+                            data: myDatas1,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            url: URL + 'api/Values/User_settings_details',
+                            dataType: "json",
+                            success: function (response2) {
+                                var s = '<option value="" disabled>Please Select</option>';
+
+                                for (var i = 0; i < response2.data.Table.length; i++) {
+
+                                    if (response2.data.Table[i].FunctionName == response.data.Table[0].Line_Code) {
+
+                                        s += '<option value="' + response2.data.Table[i].AssetID + '" selected=selected>' + response2.data.Table[i].AssetName + '</option>';
+                                    }
+                                    else {
+                                        s += '<option value="' + response2.data.Table[i].AssetID + '">' + response2.data.Table[i].AssetName + '</option>';
+                                    }
+                                }
+                                $("#eMachine").html(s);
+                            }
+                        }).error(function (response2) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Timeout",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        });
+
+
+                        $.ajax({
+                            type: "POST",
+                            data: myDatas2,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            url: URL + 'api/Values/File_settings_details',
+                            dataType: "json",
+                            success: function (response3) {
+                                var s = '<option value="" disabled>Please Select</option>';
+
+                                for (var i = 0; i < response3.data.Table.length; i++) {
+
+                                    if (response3.data.Table[i].FunctionName == response.data.Table[0].Line_Code) {
+
+                                        s += '<option value="' + response3.data.Table[i].id + '" selected=selected>' + response3.data.Table[i].filename + '</option>';
+                                    }
+                                    else {
+                                        s += '<option value="' + response3.data.Table[i].id + '">' + response3.data.Table[i].filename + '</option>';
+                                    }
+                                }
+                                $("#eFile").html(s);
+                            }
+                        }).error(function (response3) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Timeout",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        });
+
+
+
+
+                    },
+                    error: function (response) {
+
+                    }
+                }).error(function (response) {
+                    if (response.status == "401") {
+                        swal({
+                            icon: "warning",
+                            title: "Session Timeout",
+                            button: true,
+                            closeModal: false
+                        })
+                        window.location = R_url;
+                    }
+                    else {
+                        swal({
+                            icon: "warning",
+                            title: response.responseText,
+                            button: true,
+                            closeModal: false
+                        })
+
+                    }
+                });
+                return false;
+            }
+            else {
+
+                return;
+            }
+
+        });
+
+
+
+
+
+
+
+    });
+    //delete function on selection of row
+
+    $("#onselectdelete").on("click", function () {
+
+        //function to retrieve id on select to delete the row
+        var CompanyCode;
+        $("#datatable-default_1 tbody tr").each(function () {
+
+            if ($(this).hasClass('selected')) {
+
+                if (confirm("Do you want to Delete this...?")) {
+
+                    var row = $(this);
+                    var A_ID = row.find(".A_ID span").html();
+                    var myData = {
+                        "QueryType": "Delete_alarm",
+                        "Parameter": A_ID,
+                        "CompanyCode": '@Session["CompanyCode"]',
+                         "PlantCode": '@Session["PlantCode"]',
+                         "LineCode": '@Session["LineCode"]'
+                    };
+
+                    var R_url = '@Url.Action("Login", "Main")';
+                    var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/Values/delete_User_settings_details',
+                        data: myData,
+                         headers: {
+                                    Authorization: 'Bearer ' + user1
+                            },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+                            swal({
+                                icon: "success",
+                                title: "Alarm Details Deleted Successfully...!",
+                                button: true,
+                                timer: 4500
+                            })
+                            window.location = '@Url.Action("Alarm_data", "UserSettings")';
+                        }
+                    }).error(function (response) {
+                        if (response.status == "401") {
+                            swal({
+                                icon: "warning",
+                                title: "Session Timeout",
+                                button: true,
+                                closeModal: false
+                            })
+                            window.location = R_url;
+                        }
+                        else {
+                            swal({
+                                icon: "warning",
+                                title: response.responseText,
+                                button: true,
+                                closeModal: false
+                            })
+
+                        }
+                    });
+                }
+
+                return false;
+            }
+            else {
+
+                return;
+            }
+
+        });
+    });
+
+
+    $("#Delete_Machine").on("click", function () {
+
+
+
+        var Machine_code = $("#Machine_id").val();
+
+        //function to retrieve id on select to delete the row
+
+        if (Machine_code != "") {
+
+            if (confirm("Do you want to Delete this...?")) {
+
+                var myData = {
+                    "QueryType": "Delete_alarm_settings",
+                    "Parameter": Machine_code,
+                    "CompanyCode": '@Session["CompanyCode"]',
+                    "PlantCode": '@Session["PlantCode"]',
+                    "LineCode": '@Session["LineCode"]'
+                };
+                var R_url = '@Url.Action("Login", "Main")';
+                var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+                $.ajax({
+                    type: "POST",
+                    url: URL + 'api/Values/delete_User_settings_details',
+                    data: myData,
+                    headers: {
+                        Authorization: 'Bearer ' + user1
+                    },
+                    dataType: "json",
+                    beforeSend: function () {
+                        $('.loading').show();
+                    },
+                    complete: function () {
+                        $('.loading').hide();
+                    },
+                    success: function (response) {
+                        swal({
+                            icon: "success",
+                            title: "Alarm Details Deleted Successfully...!",
+                            button: true,
+                            timer: 4500
+                        })
+                        window.location = '@Url.Action("Alarm_data", "UserSettings")';
+                    }
+                }).error(function (response) {
+                   
+                    if (response.status == "401") {
+                        swal({
+                            icon: "warning",
+                            title: "Session Timeout",
+                            button: true,
+                            closeModal: false
+                        })
+                        window.location = R_url;
+                    }
+                    else {
+                        swal({
+                            icon: "warning",
+                            title: response.responseText,
+                            button: true,
+                            closeModal: false
+                        })
+
+                    }
+                });
+            }
+        }
+        else {
+            swal({
+                icon: "warning",
+                title: "Please Select Machine Code",
+                button: true,
+                closeModal: false
+            })
+
+        }
+
+
+
+
+    });
+
+
+    $("#Upload").on("click", function () {
+
+        var upload = $("#file").val();
+        var Machine_code = $("#Machine_id").val();
+
+        if (upload == "" || upload == null) {
+            swal({
+                icon: "warning",
+                title: "Please Choose  file",
+                button: true,
+                closeModal: false
+            })
+
+
+        }
+        else if (Machine_code == "") {
+            swal({
+                icon: "warning",
+                title: "Please Select Machine Code",
+                button: true,
+                closeModal: false
+            })
+
+        }
+
+    });
+
+
+    $("#search").on("click", function () {
+        var mac_id = $("#Machine_id").val();
+
+        $("#Parameter3").val(mac_id);
+        load_data();
+    });
+
+</script>
+
+
+
+

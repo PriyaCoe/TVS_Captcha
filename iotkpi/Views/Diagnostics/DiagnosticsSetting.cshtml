@@ -1,0 +1,590 @@
+﻿
+@model IEnumerable<PlanDigitization_web.Models.Diagnostics_settings>
+@{
+    ViewBag.Title = "Alert";
+}
+
+<header class="page-header">
+    <h2> Diagnostic Setting Details </h2>
+
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            <li><span>Settings</span></li>
+            <li><span>Alert</span></li>
+        </ol>
+    </div>
+</header>
+
+<!-- Add New Alert-->
+<div class="row" id="divnew" style="display:none;">
+    <div class="col-md-12">
+        <form class="form" action="@Url.Action("Save_Diagnostics","Diagnostics")" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">Add New</h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Device ID <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="DeviceID" class="form-control" title="Enter ID" placeholder="Device ID" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Device Reference <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="DeviceRef" class="form-control" title="Enter Ref" placeholder="Device Ref" required />
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Gateway <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <select id="" class="form-control" name="gateway" required>
+                                <option value=""> Select </option>
+                                <option value="1"> Yes </option>
+                                <option value="0"> NO </option>
+
+                            </select>
+                        </div>
+                        <label class="col-sm-2 control-label"> Make <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="make" class="form-control" title="Enter Make" placeholder="make" required />
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Part Number <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="partnumber" class="form-control" title="Enter PartNumber" placeholder="Part Number" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> IO Server <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="ioserver" class="form-control" title="Enter IO Server name" placeholder="IO Server" required />
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Mac Address <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="macaddress" class="form-control" title="Enter Mac Address" placeholder="Mac Address" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Connected TO <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="connectedto" class="form-control" title="Enter To which it is connected" placeholder="Connected TO" required />
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Installed <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="date" name="installed" class="form-control" title="Enter Installed Date" placeholder="Installed Date" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Remarks <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="remarks" class="form-control" title="Enter Remarks" placeholder="Remarks" required />
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Cancel</button>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </form>
+    </div>
+</div>
+
+<!-- Alert Details-->
+<div class="row" id="divdetails">
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                @if (ViewContext.Controller.HasPermission("DiagnosticSetting-Add"))
+                {
+                    <div class="panel-actions">
+                        <button class="btn btn-primary" id="add"><i class="fa fa-plus" aria-hidden="true"> Add New</i></button>
+                    </div>
+                }
+
+                <h2 class="panel-title" style="color:white;">Diagnostic Settings List : </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-striped mb-none" id="datatable-default">
+                            <thead style="background-color:teal;color:white;">
+                                <tr>
+                                    <th> Device ID </th>
+                                    <th> Device Reference </th>
+                                    <th> Gateway </th>
+                                    <th> Make </th>
+                                    <th> Part Number </th>
+                                    <th> IO Server </th>
+                                    <th> Mac Address </th>
+                                    <th> Connected TO </th>
+                                    <th> Installed </th>
+                                    <th> Remarks </th>
+                                    <th style="display:none;"> ID </th>
+                                    <th style="text-align:center;width:150px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int RowNo = 0;}
+                                @foreach (var item in Model)
+                                {
+                                    <tr class="gradeX">
+                                        <td>
+                                            <span>@Html.Encode(item.DeviceID)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.DeviceRef)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.gateway)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.make)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.partnumber)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.ioserver)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.macaddress)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.connectedto)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.installed)</span>
+                                        </td>
+                                        <td>
+                                            <span>@Html.Encode(item.remarks)</span>
+                                        </td>
+                                        <td class="uniqueid" style="display:none;">
+                                            <span>@Html.Encode(item.Unique_ID)</span>
+                                        </td>
+
+                                        <td style="text-align:center;">
+                                            @if (ViewContext.Controller.HasPermission("DiagnosticSetting-Edit"))
+                                            {
+                                                <button class="btn btn-primary" style="margin-top: 10px" id="edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+
+                                            }
+                                            @if (ViewContext.Controller.HasPermission("DiagnosticSetting-Delete"))
+                                            {
+                                                <button class="btn btn-danger" style="margin-top: 10px" id="delete"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@*<div class="col-md-12" style="padding-bottom:10%;">
+
+    
+    <div class="row">
+        <form id="form" action="@Url.Action("upload_details", "Diagnostics")" enctype="multipart/form-data" method="post">
+            <section class="panel">
+                <header class="panel-heading">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title">Upload Diagnostics Details</h2>
+                    <div style="float:right;">
+                        <strong>Sample Format:</strong>
+                        <a href="@Url.Action("Samplesheet","Diagnostics")"><img src="~/assets1/images/excel.ico" width="25" height="25" title="Download Sample Excel format" alt="excel" /></a>
+
+                    </div>
+                </header>
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Choose File <span class="required">*</span></label>
+                        <div class="col-sm-7">
+                            <input type="file" class="form-control" title="*" id="file" name="postedFile">
+                        </div>
+                        <div class="col-sm-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
+    </div>
+</div>*@
+
+
+<!--Edit Alert Details-->
+<div class="row" id="divedit" style="display:none;">
+    <div class="col-md-12">
+        <form class="form" action="@Url.Action("Update_Diagnostics","Diagnostics")" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">Update Diagnostic Setting</h2>
+                </header>
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Device ID <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eDeviceID" name="DeviceID" class="form-control" title="Enter ID" placeholder="Device ID" required readonly />
+                        </div>
+                        <label class="col-sm-2 control-label"> Device Reference <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eDeviceRef" name="DeviceRef" class="form-control" title="Enter Ref" placeholder="Device Ref" required />
+                        </div>
+                        <input type="hidden" id="eID" name="Unique_ID" />
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Gateway <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <select id="egateway" class="form-control" name="gateway" required>
+                                <option value=""> Select </option>
+                                <option value="1"> Yes </option>
+                                <option value="0"> NO </option>
+
+                            </select>
+                        </div>
+                        <label class="col-sm-2 control-label"> Make <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="emake" name="make" class="form-control" title="Enter Make" placeholder="make" required />
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Part Number <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="epartnumber" name="partnumber" class="form-control" title="Enter PartNumber" placeholder="Part Number" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> IO Server <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eioserver" name="ioserver" class="form-control" title="Enter IO Server name" placeholder="IO Server" required />
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Mac Address <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="emacaddress" name="macaddress" class="form-control" title="Enter Mac Address" placeholder="Mac Address" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Connected TO <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="econnectedto" name="connectedto" class="form-control" title="Enter To which it is connected" placeholder="Connected TO" required />
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Installed <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="date" id="einstalled" name="installed" class="form-control" title="Enter Installed Date" placeholder="Installed Date" required/>
+                        </div>
+                        <label class="col-sm-2 control-label"> Remarks <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eremarks" name="remarks" class="form-control" title="Enter Remarks" placeholder="Remarks" required />
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Cancel</button>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </form>
+    </div>
+</div>
+
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+<script src="~/assets1/datepicker_normal/datepicker_normal_jquery.min.js"></script>
+<script src="~/assets1/datepicker_normal/jquery-ui-1.8.19.custom.min.js"></script>
+<script src="~/Scripts/bootstrap-datepicker.js"></script>
+@*<script src="https://code.jquery.com/jquery-3.5.1.js"></script>*@
+<script src="~/assets1/javascripts/jquery.dataTables.min.js"></script>
+
+
+@if (@TempData["message"] != null)
+{
+    <script type="text/javascript">
+    $(function () {
+        var msg = '@TempData["message"]';
+        //alert(msg)
+        if (msg == "1") {
+            swal({
+                icon: "success",
+                title: "Details Added Successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+
+        else if (msg == "2") {
+            swal({
+                icon: "success",
+                title: "Details Updated Successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+
+        else if (msg == "4") {
+            swal({
+                icon: "error",
+                title: "Already Details Present...!",
+                button: true,
+                timer: 4500
+            })
+        }
+
+        else if (msg == "0") {
+            swal({
+                icon: "error",
+                title: "Failed to Add",
+                button: true,
+                timer: 4500
+            })
+        }
+        else {
+            swal({
+                icon: "error",
+                title: msg,
+                button: true,
+                timer: 4500
+            })
+        }
+    });
+    </script>
+}
+<script type="text/javascript">
+
+    var dateToday = new Date();
+    var yrRange = (dateToday.getFullYear() - 10) + ":" + (dateToday.getFullYear());
+    $(".datepic").datepicker({
+        numberOfMonths: 1,
+        maxDate: '0',
+        dateFormat: 'yy-mm-dd',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: yrRange,
+        orientation: "bottom",
+        endDate: '+0d'
+    });
+
+    $("#add").click(function () {
+        $("#divnew").show();
+        $("#divdetails").hide();
+        $("#divedit").hide();
+    });
+
+    $(".cancel").click(function () {
+        $("#divnew").hide();
+        $("#divdetails").show();
+        $("#divedit").hide();
+    });
+</script>
+
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+    $("body").on("click", "#edit", function () {
+        var row = $(this).closest("tr");
+        var ID = row.find(".uniqueid span").html();
+        //alert(ID)
+        var myData = {
+            "QueryType": "Edit_diagnostics_details",
+            "Parameter": ID,
+             "CompanyCode": '@Session["CompanyCode"]',
+             "PlantCode": '@Session["PlantCode"]',
+             "LineCode":'@Session["LineCode"]'
+        };
+         var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+        $("#divedit").show();
+        $("#divnew").hide();
+        $("#divdetails").hide();
+        $.ajax({
+            type: "POST",
+            url: URL + 'api/Diagnostics/settings_details',
+
+            data: myData,
+            dataType: "json",
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+
+            success: function (response)
+            {
+
+                $('#eDeviceID').val(response.data.Table[0].DeviceID);
+                $('#emake').val(response.data.Table[0].make);
+                $('#egateway').val(response.data.Table[0].gateway);
+                $('#eDeviceRef').val(response.data.Table[0].DeviceRef);
+                $('#eioserver').val(response.data.Table[0].ioserver);
+                $('#eID').val(response.data.Table[0].Unique_ID);
+                $('#epartnumber').val(response.data.Table[0].partnumber);
+                $('#einstalled').val(response.data.Table[0].installed);
+                $('#econnectedto').val(response.data.Table[0].connectedto);
+                $('#emacaddress').val(response.data.Table[0].macaddress);
+                $('#eremarks').val(response.data.Table[0].remarks);
+
+            }
+            , //If token expired /invalid page will be redirected to login
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Timeout",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+
+                            }
+                            //if error other than token, notification will display the actual error message
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+        }).error(function (response) {
+                swal({
+                    icon: "warning",
+                    title: "Session Timeout",
+                    button: true,
+                    closeModal: false
+                })
+                window.location = R_url;
+            });
+    });
+
+    $("body").on("click", "#delete", function () {
+        if (confirm("Do you want to Delete this Alert?")) {
+            var row = $(this).closest("tr");
+            var ID = row.find(".uniqueid span").html();
+
+            var myData = {
+                "QueryType": "Delete_Diagnostics_details",
+                "unique_id": ID,
+                "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+             "LineCode": '@Session["LineCode"]'
+            };
+
+            var R_url = '@Url.Action("Login", "Main")';
+                     var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+            $.ajax({
+                type: "POST",
+                url: URL + 'api/Diagnostics/Add_Update_delete_Diagnostic',
+                data: myData,
+                headers: {
+                     Authorization: 'Bearer ' + user1
+                 },
+                dataType: "json",
+                success: function (response) {
+
+                    if (response == 3) {
+                        swal({
+                            icon: "success",
+                            title: "Details Deleted Successfully...!",
+                            button: true,
+                            timer: 4500
+                        })
+                        window.location = '@Url.Action("DiagnosticsSetting", "Diagnostics")';
+                    }
+                    else {
+                        swal({
+                            icon: "error",
+                            title: "Deletion failed...!",
+                            button: true,
+                            timer: 4500
+                        })
+                        window.location = '@Url.Action("DiagnosticsSetting", "Diagnostics")';
+                    }
+
+                },
+                        //If token expired /invalid page will be redirected to login
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Timeout",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+
+                            }
+                            //if error other than token, notification will display the actual error message
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+            }).error(function (response) {
+                swal({
+                    icon: "warning",
+                    title: "Session Timeout",
+                    button: true,
+                    closeModal: false
+                })
+                window.location = R_url;
+            });
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.updated_time').text("N/A");
+        $('.shift').text("N/A");
+
+
+    });
+</script>
+
+

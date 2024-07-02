@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "DiesetLive";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #datatable-live-Dieset thead th {
+        background-color: teal;
+        color: white;
+    }
+</style>
+<header class="page-header">
+    <h2> Dieset - Live </h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("NewDash","Main")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            @*<li><span>Maintenance</span></li>
+                <li><span>RealTime Dashboard</span></li>
+                <li><span>Tool Life Monitoring</span></li>*@
+        </ol>
+    </div>
+</header>
+
+
+@if (ViewContext.Controller.HasPermission("DisetHistoric-View"))
+{
+    <div class="row">
+        @*<button type="button" style="float:right;margin-left:2%" class="btn btn-default">OEE Historic<span class="shift"></span></button>*@
+        <input type="button" class="btn-info" onclick="location.href='/DisetHistory/DisetHistoric';" value="Dieset Historic" style="float:right;text-decoration:none;margin-right:2%;background-color:black;border-style:none;" />
+
+    </div>
+    <div class="row ">
+        <div class="col-md-12">
+            <section class="panel">
+                
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-live-Dieset">
+                        <thead style="background-color:teal;color:white;">
+                            <tr>
+                                <th>Tool ID</th>
+                                <th>Tool Name</th>
+                                <th>Instance</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Production Count</th>
+                                <th>Cummulative Count</th>
+                               <th>Machine</th>
+                            </tr>
+                        </thead>
+                        <tbody class="details" style="width:100%;">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+<!-- end: page -->
+<script src="~/assets1/javascripts/swal.js"></script>
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    //$.getScript(URL + 'Scripts/jquery.signalR-2.4.1.min.js', function () {
+    //    $.getScript(URL + 'signalr/hubs/', function () {
+    //        // Declare a proxy to reference the hub.
+    //        $.connection.hub.url = URL + 'signalr';
+    //        var notifications = $.connection.PlantDigitizationhub;
+    //        //debugger;
+    //        // Create sssa function that the hub can call to broadcast messages.
+    //        notifications.client.updateDatas = function () {
+    //            gettoollivedata()
+    //        };
+    //        // Start the connection.
+    //        $.connection.hub.start().done(function () {
+    //            gettoollivedata();
+    //        }).fail(function (e) {
+    //            console.log(e);
+    //        });
+    //    });
+
+        function getdiesetlivedata() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('?');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            $('.updated_time').text('');
+            var myData = {
+                "CompanyCode": '@Session["CompanyCode"]',
+                "PlantCode": '@Session["PlantCode"]',
+                "Line_code": vars[0],
+            };
+             var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+            //$.ajax({
+            //    type: 'Post',
+            //    url: URL + 'api/OEE/GetEmployee',
+            //    headers: {
+            //        Authorization: 'Bearer ' + user1
+            //    },
+            //    dataType: 'json'
+            //}).success(function (response) {
+            $.ajax({
+                type: 'POST',
+                url: URL + 'api/Toollife/GetDiesetlivedatas',
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+                data: myData,
+                dataType: 'json'
+            }).success(function (response) {
+                var rowsCnt = document.getElementById("datatable-live-Dieset").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                if (rowsCnt > 0) {
+                    for (var i = 0; i < rowsCnt; i++) {
+                        document.getElementById("datatable-live-Dieset").deleteRow(1);
+                    }
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-live-Dieset')) {
+                    $('#datatable-live-Dieset').DataTable().destroy();
+                }
+
+               
+                $(".details").html("");
+
+
+                if (response.data.length != 0 ) {
+                   
+                    //var j = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += "<td> " + response.data[i].toolid + "</td> ";
+                        cols += "<td> " + response.data[i].toolname + "</td> ";
+                        cols += "<td> " + response.data[i].instance + "</td> ";
+                        cols += "<td> " + response.data[i].starttime + "</td> ";
+                        cols += "<td> " + response.data[i].stoptime + "</td> ";
+                        cols += "<td> " + response.data[i].production + "</td> ";
+                        cols += "<td> " + response.data[i].cummulative + "</td> ";
+                        cols += "<td> " + response.data[i].linename + "</br>" + response.data[i].MachineCode + "</td> ";
+                        cols += "</tr>";
+                        newRow.append(cols);
+                        $(".details").append(newRow);
+
+
+                         //dis_table.row.add([response.data[i].toolname, response.data[i].instance, response.data[i].starttime, response.data[i].stoptime, response.data[i].production, response.data[i].cummulative]).draw();
+
+                       // j++;
+
+
+                    }
+
+                    $('#datatable-live-Dieset').DataTable({
+                          scrollY: true,
+                            scrollX: true,
+                            scroller: true,
+                            "lengthMenu": [[20,30, 50, -1], [20, 30, 50, "All"]]
+                        } );
+
+
+                    $('.updated_time').text(new Date().toLocaleString());
+                   // $('.shift').text("N/A");
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                }
+                else {
+
+                     var newRow = $("<tr>");
+                    var cols = '';
+                    cols += "<td colspan='8' style='text-align:center;font-weight:bold;background-color:burlywood;color:black;'> No Data Available </td> ";
+                    cols += "</tr>";
+                    newRow.append(cols);
+                    $(".details").append(newRow);
+                    $('#maccode').text("N/A");
+                   
+                    $('.updated_time').text(new Date().toLocaleString());
+                    //$('.shift').text("N/A");
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                    //$(".custom_pre_error").text(response.msg);
+                }
+            }).error(function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            });
+            
+            setTimeout(getdiesetlivedata, 120000);
+        }
+    //});
+    $(document).ready(function () {
+        getdiesetlivedata();
+});
+</script>

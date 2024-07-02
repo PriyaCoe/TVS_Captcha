@@ -1,0 +1,272 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "FirstPassYieldLiveDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #example thead th {
+        background-color: teal;
+        color: white;
+    }
+</style>
+<header class="page-header">
+    <h2>First Pass Yield - Live</h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("NewDash","Main")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            @*<li><span>Quality</span></li>
+            <li><span>RealTime Dashboard</span></li>
+            <li><span>FirstPass Yield</span></li>*@
+        </ol>
+    </div>
+</header>
+
+@if (ViewContext.Controller.HasPermission("FirstPassLive-View"))
+{
+    <div class="row">
+        @*<button type="button" style="float:right;margin-left:2%" class="btn btn-default">OEE Historic<span class="shift"></span></button>*@
+        <input type="button" class="btn-info" onclick="location.href='/FirstPassYield/FirstPassYieldHistoricDashboard';" value="Historic-FirstPass Yield" style="float:right;text-decoration:none;margin-right:2%;background-color:black;border-style:none;" />
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <h2 class="panel-title" style="color:white;">Asset :<span id="line_name"></span></h2>
+                    @*<br />*@
+                    @*<button type="button" class="btn btn-default">Shift Running: <span id="cur_shift"></span></button>*@
+                    @*<button type="button" style="float:right" class="btn btn-default">Last update time: <span class="updated_time"></span></button>*@
+                    @*<br />*@
+                </header>
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped mb-none" id="example">
+                        <thead style="background-color:teal;color:white;">
+                            <tr>
+                                <th>S.NO</th>
+                                <th>Line Name</th>
+                                @*<th>EOL Machine</th>*@
+                                <th>Variant</th>
+                                <th>First pass OK parts</th>
+                                <th>Reworked Parts</th>
+                                <th>Rejected parts</th>
+                                <th>First pass Yield(%)</th>
+                                @*<th>Cost per unit</th>*@
+                                <th>COPQ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="details"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+<!-- end: page -->
+<script src="~/assets1/javascripts/swal.js"></script>
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    //$.getScript(URL + 'Scripts/jquery.signalR-2.4.1.min.js', function () {
+    //    $.getScript(URL + 'signalr/hubs/', function () {
+    //        // Declare a proxy to reference the hub.
+    //        $.connection.hub.url = URL + 'signalr';
+    //        var notifications = $.connection.PlantDigitizationhub;
+    //        //debugger;
+    //        // Create a function that the hub can call to broadcast messages.
+    //        notifications.client.updateDatas = function () {
+    //            getfirstpasslivedata()
+    //        };
+    //        // Start the connection.
+    //        $.connection.hub.start().done(function () {
+    //            getfirstpasslivedata();
+    //        }).fail(function (e) {
+    //            console.log(e);
+    //        });
+    //    });
+
+        function getfirstpasslivedata() {
+            //var vars = [], hash;
+            //var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            //for (var i = 0; i < hashes.length; i++) {
+            //    hash = hashes[i].split('?');
+            //    vars.push(hash[0]);
+            //    vars[hash[0]] = hash[1];
+            //}
+            $('.updated_time').text('');
+             var myData = {
+                "CompanyCode": '@Session["CompanyCode"]',
+                 "PlantCode": '@Session["PlantCode"]',
+                 "Linecode": '@Session["LineCode"]',
+            };
+            var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+            $.ajax({
+                type: 'Post',
+                url: URL + 'api/OEE/check_holiday',
+                data: myData,
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+
+                dataType: 'json'
+            }).success(function (response) {
+
+                if (response.data.length == 0)
+                {
+                     $.ajax({
+                type: 'POST',
+                url: URL + 'api/Firstpassyield/GetFirstPasslivedata',
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+                data: myData,
+                dataType: 'json'
+            }).success(function (response) {
+
+                //$('#cur_shift').text(response.data[0].ShiftID);
+
+
+                if ($.fn.DataTable.isDataTable('#example')) {
+                    $('#example').DataTable().clear();
+                   
+
+                }
+                if ($.fn.DataTable.isDataTable('#example')) {
+                    
+                    $('#example').DataTable().destroy();
+                }
+
+                $(".details").html('');
+
+                if (response.data.length != 0) {
+                   // alert("inside")
+                    $('.shift').text(response.data[0].ShiftID);
+                    $('#line_name').text(response.data[0].line_name+"_"+response.data[0].Linecode);
+                    var j = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += "<td> " + j + "</td> ";
+                        cols += "<td> " + response.data[i].line_name + "_" + response.data[i].Linecode + "</td> ";
+                        cols += "<td> " + response.data[i].variant_name + "</br>" + response.data[i].Variantcode + "</td> ";
+                        cols += "<td> " + response.data[i].TotalOkParts + "</td> ";
+                        cols += "<td> " + response.data[i].TotalReworkParts + "</td> ";
+                        cols += "<td> " + response.data[i].TotalNokParts + "</td> ";
+                        cols += "<td> " + response.data[i].Firstpassyeild + "</td> ";
+                        cols += "<td> " + response.data[i].COPQ + "</td> ";
+                        cols += "</tr>";
+                        newRow.append(cols);
+                        $(".details").append(newRow);
+                        j++;
+                    }
+
+                    
+
+                    var firstpasslive=$('#example').DataTable({
+
+                        "responsive": true,
+                        "autoWidth": false,
+                        scrollY: true,
+                            scrollX: true,
+                            scroller: true,
+                        "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]]
+
+                    });
+
+                    $('.updated_time').text(new Date().toLocaleString());
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+
+                }
+                else {
+
+                    var rowsCnt = document.getElementById("example").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                    if (rowsCnt > 0) {
+                        for (var i = 0; i < rowsCnt; i++) {
+                            document.getElementById("example").deleteRow(1);
+                        }
+                    }
+                    var newRow = $("<tr>");
+                    var cols = '';
+                    cols += "<td colspan='8' style='text-align:center;font-weight:bold;background-color:burlywood;color:black;'> No Data Available </td> ";
+                    cols += "</tr>";
+                    newRow.append(cols);
+                    $(".details").append(newRow);
+                    //$('.shift').text("N/A");
+                    $('#line_name').text("N/A");
+                    $('.updated_time').text(new Date().toLocaleString());
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                    //$(".custom_pre_error").text(response.msg);
+                }
+            }).error(function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            });
+                }
+                else
+                {
+
+                    var rowsCnt = document.getElementById("example").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                    if (rowsCnt > 0) {
+                        for (var i = 0; i < rowsCnt; i++) {
+                            document.getElementById("example").deleteRow(1);
+                        }
+                    }
+                     var newRow = $("<tr>");
+                    var cols = '';
+                    cols += "<td colspan='8' style='text-align:center;font-weight:bold;background-color:burlywood;color:black;'>  "+response.data[0].holiday_name+"  </td> ";
+                    cols += "</tr>";
+                    newRow.append(cols);
+                    $(".details").append(newRow);
+                    //$('.shift').text("N/A");
+                    $('#line_name').text("N/A");
+                    $('.updated_time').text(new Date().toLocaleString());
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                }
+           });
+            //}).error(function (response) {
+            //    swal({
+            //        icon: "warning",
+            //        title: "Session Timeout",
+            //        button: true,
+            //        closeModal: false
+            //    })
+            //    window.location = R_url;
+            //});
+            setTimeout(getfirstpasslivedata, 120000);
+         }
+$(document).ready(function () {
+        getfirstpasslivedata();
+});
+</script>
+
+
+

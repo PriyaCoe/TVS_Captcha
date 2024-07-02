@@ -1,0 +1,596 @@
+﻿@model IEnumerable<PlanDigitization_web.Models.Diset>
+@{
+    ViewBag.Title = "Diset_list";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<header class="page-header">
+    <h2> Dieset Details </h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("NewDash","Main")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            @*<li><span>Settings</span></li>
+                <li><span>Tools</span></li>*@
+        </ol>
+    </div>
+</header>
+
+@if (ViewContext.Controller.HasPermission("DisetHistoric-View"))
+{
+    <div class="row">
+        <div class="col-md-10">
+            @*<div class="form-group">
+                    <div class="btn-group">
+                        <label class="control-label" style="float:right; font-weight:bold;"> Select Line </label>
+                    </div>
+                    <div class="btn-group">
+                        <select id="linecode" class="form-control Line" name="LineCode" title="*"></select>
+                    </div>&nbsp;
+                    <div class="btn-group">
+                        <label class="control-label" style="float:right; font-weight:bold;"> Select Machine </label>
+                    </div>
+                    <div class="btn-group">
+                        <select id="machinecode" class="form-control Machine" name="MachineCode" title="*">
+                            <option value="">Select Line </option>
+                        </select>
+                    </div>&nbsp;
+                </div>*@
+            <div class="form-group">
+                <div class="btn-group">
+                    <label class="control-label" style="float:right; font-weight:bold;"> Select Tool </label>
+                </div>
+                <div class="btn-group">
+                    <select data-plugin-selectTwo id="tool" class="form-control tool" name="tool" title="*">
+                        <option value="">Select Machine </option>
+                    </select>
+                </div>&nbsp;
+                <div class="btn-group">
+                    <button type="submit" id="viewdetails" class="mb-xs mt-xs mr-xs btn btn-primary">View</button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" id="clear" class="mb-xs mt-xs mr-xs btn btn-danger" >Reset</button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="mb-xs mt-xs mr-xs btn" id="startfunction" onclick="startfunction()" style="color:white;background-color:darkslategrey">Refresh list</button>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- Diset Details-->
+    <div class="row" id="divdetails">
+        <div class="col-md-12">
+            <section class="panel">
+                @*<header class="panel-heading" style="background-color:teal;color:white;align-content:center;text-align:center;">
+
+                        <span id="machinename" style="align-content:center;text-align:center;font-size:large"></span>
+                        <br></br>
+                        <span id="stockno" style="align-content:center;text-align:center;"></span>
+
+                    </header>*@
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="panel-body">
+
+                            @*@if (ViewContext.Controller.HasPermission("DisetHistoric-View"))
+                                {*@
+                            <header class="panel-heading" style="background-color:teal;color:white;">
+
+                                @*<div class="panel-actions">
+                                    <button class="btn btn-primary" id="onselectview"><i class="fa fa-pencil-square-o" aria-hidden="true">View Details</i></button>
+                                </div>*@
+                                <h2 class="panel-title" style="color:white;">Dieset Details  </h2>
+                                @*<p style="float:right;padding-top:2%;color:black;">*Select record to view details</p>*@
+                            </header>
+                            <table class="table table-bordered table-striped mb-none" id="datatable-default1">
+                                <thead style="background-color:teal;color:white;">
+                                    <tr>
+                                        <th>ToolID</th>
+                                        <th>ToolName</th>
+                                        <th>Loaded Time</th>
+                                        <th>Unloaded Time</th>
+                                        <th>Instance</th>
+                                        <th>Production Qty</th>
+                                        <th>Cummulative Qty</th>
+                                        <th>Machine</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                @*<tbody>
+
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr class="gradeX">
+                                                <td>
+                                                    <span>@Html.Encode(item.date)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.id)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.loaded)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.unloaded)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.starttime)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.stoptime)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.production)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.cummulative)</span>
+                                                </td>
+                                                <td>
+                                                    <span>@Html.Encode(item.reason)</span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>*@
+                                <tbody class="custom_preventive"></tbody>
+
+                                @*<span class="custom_pre_error" style="color:red;font-size:13px;font-weight:bold;"></span>*@
+                            </table>
+                            @*}
+                                else
+                                {
+                                    <h2>View permission is denied</h2>
+                                }*@
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+
+<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-dialog" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Dieset Start/Stop Details</h2>
+            </div>
+            @*<div class="modal-body" id="breakdown" style="height:75%;width:20%;">
+        </div>*@
+            <div class="modal-body" id="breakdown">
+                <table class="table table-bordered no-wrap" id="reasons_table">
+                    <thead style="background-color:cadetblue;color:white;">
+                        <tr>
+                            <th>Tool ID</th>
+                            <th>Tool Name</th>
+                            <th>Instance</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Production Count</th>
+                            <th>Cummulative Count</th>
+                            <th>Machine</th>
+                        </tr>
+                    </thead>
+                    <tbody class="body mtable" id="data1"></tbody>
+                </table>
+
+            </div>
+            <div id="okparts_nodata1" style="display: none;padding-left:40%"> <p style="color:red;font-size:1.5vw">No  Data</p></div>
+        </div>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+
+
+<script type="text/javascript">
+    function startfunction() {
+
+       var CompanyCode = '@Session["CompanyCode"]';
+        var PlantCode = '@Session["PlantCode"]';
+        if (CompanyCode == "" && PlantCode == "") {
+            swal({
+                icon: "error",
+                title: "Please Select Customer and Plant...!",
+                button: true,
+                timer: 4500
+            })
+            return;
+        }
+         else if (CompanyCode == "") {
+                    swal({
+                        icon: "error",
+                        title: "Please Select Customer...!",
+                        button: true,
+                        timer: 4500
+                    })
+                    return;
+                }
+        else if (PlantCode == "") {
+                swal({
+                    icon: "error",
+                    title: "Please Select Plant...!",
+                    button: true,
+                    timer: 4500
+                })
+                return;
+            }
+        else
+        {
+             var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+                    var data2 = {
+                        "Flag": "toollist_dieset",
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]'
+
+                    };
+                    var R_url = '@Url.Action("Login", "Main")';
+                   var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+                   $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetSettingdatas1", "Main")',
+                       //url: URL + 'api/Toollife/GetSettingdatas',
+                       //headers: {
+                       //    Authorization: 'Bearer ' + user1
+                       //},
+                       data: data2,
+                        dataType: "json",
+                        success: function (response) {
+                            var s = '<option value="">Select Variant</option>';
+                            for (var i = 0; i < response.data.length; i++) {
+                                s += '<option value="' + response.data[i].Code + '">' + response.data[i].Name + '</option>';
+                            }
+                            $("#tool").html(s);
+                        },
+                        error: function (response) {
+
+                        }
+                    }).error(function (response) {
+
+                        if (response.status == "401") {
+                            swal({
+                                icon: "warning",
+                                title: "Session Timeout",
+                                button: true,
+                                closeModal: false
+                            })
+                            window.location = R_url;
+                        }
+                        else {
+                            swal({
+                                icon: "warning",
+                                title: response.responseText,
+                                button: true,
+                                closeModal: false
+                            })
+
+                        }
+
+                    });
+
+
+
+        }
+
+
+
+
+
+    }
+
+
+</script>
+
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+    //document.getElementById("clear").addEventListener("click", function () {
+
+    //        $('#Linecode').val('');
+    //        $('#machinecode').val('');
+
+    //})
+
+    document.getElementById("viewdetails").addEventListener("click", function () {
+
+            var active_tab = $('ul .active').attr("id");
+            var toolname = $('.tool').val();
+
+           // alert(toolname)
+
+           // alert(toolname)
+            $(".custom_pre_error").text('');
+
+             if (toolname == '') {
+                swal({
+                icon: "error",
+                title: "Please Provide Tool details",
+                button: false,
+                timer: 4500
+            })
+            }
+
+            else {
+
+                var preData = {
+                    "toolname":toolname,
+                    "CompanyCode": '@Session["CompanyCode"]',
+                    "PlantCode": '@Session["PlantCode"]',
+                    "LineCode":'@Session["LineCode"]',
+                 };
+                 var R_url = '@Url.Action("Login", "Main")';
+                       var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+                        //$.ajax({
+                        //    type: 'Get',
+                        //    url: URL + 'api/UserSettings/GetEmployee',
+                        //    headers: {
+                        //        Authorization: 'Bearer ' + user1
+                        //    },
+                        //    dataType: 'json'
+                        //}).success(function (response) {
+                $.ajax({
+                    type: "POST",
+                    url: URL + 'api/UserSettings/diset_details',
+                    headers: {
+                        Authorization: 'Bearer ' + user1
+                    },
+                    data: preData,
+                    dataType: "json",
+                     beforeSend: function () {
+                        $('.loading').show();
+                    },
+                    complete: function () {
+                        $('.loading').hide();
+                    },
+                    success: function (response) {
+
+                        //$("#machinename").text(response.data[0].toolname);
+                        //$("#stockno").text("2015/234");
+
+                        var rowsCnt = document.getElementById("datatable-default1").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                        if (rowsCnt > 0) {
+                            for (var i = 0; i < rowsCnt; i++) {
+                                document.getElementById("datatable-default1").deleteRow(1);
+                            }
+                        }
+
+                        if ($.fn.DataTable.isDataTable('#datatable-default1')) {
+                                $('#datatable-default1').DataTable().destroy();
+                                }
+
+                        $(".custom_preventive").html("");
+
+                        if (response.data.length != 0) {
+
+                            var j = 1;
+                            for (var i = 0; i < response.data.length; i++) {
+                                var newRow = $("<tr>");
+                                var cols = '';
+                                cols += "<td> " + response.data[i].toolid + "</td> ";
+                                cols += "<td> " + response.data[i].toolname + "</td> ";
+                                cols += "<td> " + response.data[i].starttime + "</td> ";
+                                cols += "<td> " + response.data[i].stoptime + "</td> ";
+                                cols += "<td> " + response.data[i].instance + "</td> ";
+                                cols += "<td> " + response.data[i].production + "</td> ";
+                                cols += "<td> " + response.data[i].cummulative + "</td> ";
+                                cols += "<td> " + response.data[i].linename + "</br>" + response.data[i].MachineCode + "</td> ";
+                                cols += "<td> <button class='btn btn-primary' id='' onclick=edit(\"" + response.data[i].toolid + "\","+response.data[i].instance+")>Details</button></td> ";
+                                cols += "</tr>";
+                                newRow.append(cols);
+                                $(".custom_preventive").append(newRow);
+                                j++;
+                            }
+
+
+
+                                $('#datatable-default1').DataTable({
+
+                                     "responsive": true,
+                                    "autoWidth": false,
+                                         scrollY: true,
+                            scrollX: true,
+                            scroller: true,
+                                        "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]]
+
+                                });
+
+
+
+                        }
+                        else {
+
+                            //$(".custom_pre_error").text(response.msg);
+                             var newRow = $("<tr>");
+                            var cols = '';
+                            cols += "<td colspan='9' style='text-align:center'> No Data Available </td> ";
+                            cols += "</tr>";
+                            newRow.append(cols);
+                            $(".custom_preventive").append(newRow);
+                            $('.shift').text("N/A");
+                            $('#maccode').text("N/A");
+                            $('.updated_time').text(new Date().toLocaleString());
+                        }
+                        //$('#custom_preventive').DataTable({
+                        //    "ordering": true,
+                        //    "bDestroy": true
+                        //});
+                    }
+                }).error(function (response) {
+                    if (response.status == "401") {
+                        swal({
+                            icon: "warning",
+                            title: "Session Timeout",
+                            button: true,
+                            closeModal: false
+                        })
+                        window.location = R_url;
+                    }
+                    else {
+                        swal({
+                            icon: "warning",
+                            title: response.responseText,
+                            button: true,
+                            closeModal: false
+                        })
+
+                    }
+                        });
+            }
+
+    })
+
+
+
+</script>
+
+
+<script type="text/javascript">
+     var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+    //edit function on selction of row
+
+    function edit(toolname, toolref) {
+
+
+          var preData = {
+                    "toolname":toolname,
+                    "LineCode": '@Session["LineCode"]',
+                    "CompanyCode": '@Session["CompanyCode"]',
+                    "PlantCode": '@Session["PlantCode"]'
+                 };
+                 var R_url = '@Url.Action("Login", "Main")';
+                       var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+    $.ajax({
+        type: "POST",
+        url: URL + 'api/UserSettings/diset_startstop_details',
+        headers: {
+            Authorization: 'Bearer ' + user1
+        },
+        data: preData,
+        dataType: "json",
+        success: function (response) {
+            modal.style.display = "block";
+            //$('#breakdown').modal('show');
+            if (response.status != "Error") {
+                document.getElementById("breakdown").style.display = "block";
+                document.getElementById("okparts_nodata1").style.display = "none";
+                $(".mtable").html('');
+                var j = 1;
+                var cols = '';
+                var sc = '';
+
+
+                if ($.fn.DataTable.isDataTable('#reasons_table')) {
+                    $('#reasons_table').DataTable().destroy();
+                }
+
+                for (var i = 0; i < response.data.length; i++) {
+                    cols += "<tr>";
+                    cols += "<td> " + response.data[i].toolid + "</td> ";
+                        cols += "<td> " + response.data[i].toolname + "</td> ";
+                        cols += "<td> " + response.data[i].instance + "</td> ";
+                        cols += "<td> " + response.data[i].starttime + "</td> ";
+                        cols += "<td> " + response.data[i].stoptime + "</td> ";
+                        cols += "<td> " + response.data[i].production + "</td> ";
+                        cols += "<td> " + response.data[i].cummulative + "</td> ";
+                        cols += "<td> " + response.data[i].linename + "</br>" + response.data[i].MachineCode + "</td> ";
+                    cols += "</tr>";
+
+                    j++;
+
+                }
+
+                $(".mtable").html(cols);
+
+                $('#reasons_table').DataTable({
+
+                    scrollY: true,
+                            scrollX: true,
+                            scroller: true,
+                    "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]]
+
+                });
+
+
+                $("#myModal").modal('show');
+            }
+            else {
+
+                    $(".mtable").empty();
+                    $("#myModal").modal('show');
+                document.getElementById("breakdown").style.display = "none";
+                document.getElementById("okparts_nodata1").style.display = "block";
+            }
+
+        },
+        error: function (breakdownresult) {
+            if (breakdownresult.status == "401") {
+                swal({
+                    icon: "warning",
+                    title: "Session Timeout",
+                    button: true,
+                    closeModal: false
+                })
+                window.location = R_url;
+            }
+            else {
+                swal({
+                    icon: "warning",
+                    title: breakdownresult.responseText,
+                    button: true,
+                    closeModal: false
+                })
+
+            }
+        }
+    });
+    }
+
+</script>
+
+<script type="text/javascript">
+    var modal = document.getElementById("myModal");
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        $("#myModal").modal('hide');
+
+        //modal.style.display = "none";
+    }
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $('.updated_time').text("N/A");
+        $('.shift').text("N/A");
+
+        //document.getElementById("startfunction").addEventListener("click", startfunction);
+        startfunction();
+
+    });
+</script>
+

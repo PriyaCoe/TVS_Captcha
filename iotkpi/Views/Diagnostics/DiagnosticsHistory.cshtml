@@ -1,0 +1,1037 @@
+﻿<!--To display Tab title as Diagnostics History -->
+<!--To include layout to page-->
+@{ ViewBag.Title = "DiagnosticHistory";
+                Layout = "~/Views/Shared/_Layout.cshtml"; }
+@*<link rel="stylesheet" type="text/css" href="~/assets1/datepicker_normal/jquery-ui-1.8.19.custom.css">*@
+<style>
+    .dataTables_filter {
+        float: right;
+    }
+</style>
+
+<!--Header in left side and home button for dashboard page -->
+
+<header class="page-header">
+    <h2>Diagnostic History</h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+        </ol>
+    </div>
+</header>
+
+<!--Displays page when user has Diagnostic historic view permission-->
+
+@if (ViewContext.Controller.HasPermission("DiagnosticHistoric-View"))
+{
+
+<div class="row">
+    <div class="col-md-12"style="right: 15px;">
+        <div class="tabs tabs-danger">
+            <!--Tab to display custom -->
+            <ul class="nav nav-tabs">
+                <li class="active" id="custom">
+                    <a href="#custom1" data-toggle="tab">Custom</a>
+                </li>
+                <li>
+                    <a href="#today" data-toggle="tab">Today</a>
+                </li>
+                <li>
+                    <a href="#lastday" data-toggle="tab">Last Day</a>
+                </li>
+            </ul>
+            <!--Custom tab content-->
+            <div class="tab-content">
+                <div id="custom1" class="tab-pane active">
+                    <section class="panel">
+                        <div class="form-group">
+                            <!--Date picker to select custom date-->
+                            <label class="col-md-3 control-label">Date range</label>
+                            <div class="col-md-6" style="right: 200px;">
+                                <div class="input-daterange input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control start" readonly style="text-align:left;" id="start" name="start">
+                                    <span class="input-group-addon">to</span>
+                                    <input type="text" class="form-control end" readonly style="text-align:left;" id="end" name="end">
+
+                                </div>
+
+                            </div>
+                            <!--Button to submit/reset the selection-->
+                            <div class="btn-group"style="right: 160px;">
+                                <button type="button" id="viewdetails" class="mb-xs mt-xs mr-xs btn btn-primary">View</button>
+                            </div>
+                            <div class="btn-group" style="right: 150px;">
+                                <button type="button" id="clear" class="mb-xs mt-xs mr-xs btn btn-danger">Reset</button>
+                            </div>
+                        </div>
+
+                        <header class="panel-heading" style="background-color:teal;color:white;">
+                            @*<div class="panel-actions">
+                                    <a href="#" class="fa fa-caret-down"></a>
+                                </div>*@
+                            <h2 class="panel-title" style="color:white;">Historic View </h2>
+                        </header>
+
+                        <!--Button to download data in history table-->
+                        @*<div class="btn-group" style="float:right;">
+                                <button type="button" class="mb-xs mt-xs mr-xs btn btn-primary" onclick="exportTableToExcel('datatable-custom', 'Diagnostics History')">Download</button>
+                            </div>*@
+
+                        <!--Div with table content to display historic data-->
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <table class="table table-bordered table-striped mb-none" id="datatable-custom">
+                                    <thead style="background-color:teal;color:white;">
+                                        <tr>
+                                            <th>Device ID</th>
+                                            <th>Device Name</th>
+                                            <th>Device Reference</th>
+                                            <th>Event Name</th>
+                                            <th>Logged Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="custom_details">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <span class="custom_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+                        </div>
+
+                    </section>
+
+                </div>
+                <!--Today tab content-->
+                <div id="today" class="tab-pane">
+                    <section class="panel">
+
+                        <!--Button to select today/last day option-->
+                        <div class="btn-group">
+                            <button type="button" id="todaydetails" class="mb-xs mt-xs mr-xs btn btn-primary">Click to Get today's Diagnostics Details</button>
+
+                        </div>
+                        <header class="panel-heading" style="background-color:teal;color:white;">
+
+                            <h2 class="panel-title" style="color:white;">Historic View -Today </h2>
+
+                        </header>
+
+                        <!--Button to download data in history table-->
+                        @*<div class="btn-group" style="float:right;">
+                                <button type="button" class="mb-xs mt-xs mr-xs btn btn-primary" onclick="exportTableToExcel('datatable-today', 'Diagnostics History')">Download</button>
+                            </div>*@
+
+                        <!--Div with table content to display historic data-->
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-condensed mb-none" id="datatable-today">
+                                    <thead style="background-color:teal;color:white;">
+                                        <tr>
+                                            <th>Device ID</th>
+                                            <th>Device Name</th>
+                                            <th>Device Reference</th>
+                                            <th>Event Name</th>
+                                            <th>Logged Time</th>
+                                        </tr>
+                                    </thead>
+                                    <!--table body which is binded with data from javascript-->
+                                    <tbody class="today_details"></tbody>
+                                    <!--Span to show error/no data available message-->
+                                    <span class="today_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+                                </table>
+                            </div>
+
+
+                        </div>
+                    </section>
+
+                </div>
+                <!--Lastday tab content-->
+                <div id="lastday" class="tab-pane">
+                    <section class="panel">
+
+                        <!--Button to select today/last day option-->
+                        <div class="btn-group">
+                            <button type="button" id="lastdaydetails" class="mb-xs mt-xs mr-xs btn btn-primary">Click to Get last day's Diagnostics Details</button>
+
+                        </div>
+                        <header class="panel-heading" style="background-color:teal;color:white;">
+                            @*<div class="panel-actions">
+                                    <a href="#" class="fa fa-caret-down"></a>
+                                </div>*@
+                            <h2 class="panel-title" style="color:white;">Historic View -Last Day </h2>
+                        </header>
+
+                        <!--Button to download data in history table-->
+                        @*<div class="btn-group" style="float:right;">
+                                <button type="button" class="mb-xs mt-xs mr-xs btn btn-primary" onclick="exportTableToExcel('datatable-lastday', 'Diagnostics History')">Download</button>
+                            </div>*@
+
+                        <!--Div with table content to display historic data-->
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-condensed mb-none" style="border:solid 1px" id="datatable-lastday">
+                                    <thead style="background-color:teal;color:white;">
+                                        <tr>
+                                            <th>Device ID</th>
+                                            <th>Device Name</th>
+                                            <th>Device Reference</th>
+                                            <th>Event Name</th>
+                                            <th>Logged Time</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody class="lastday_details" style="border:solid 1px"></tbody>
+                                </table>
+                                <span class="lastday_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+                            </div>
+
+
+                        </div>
+
+
+                    </section>
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+</div> }
+
+            else
+            {
+<div class="row">
+    <h2 class="panel-title">View Permission is denied</h2>
+</div>}
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+
+
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+
+<script type="text/javascript">
+
+    $(function () {
+
+        var todaydt = new Date();
+        $("#start").datepicker({
+            autoclose: true,
+            endDate: todaydt,
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date);
+            minDate.setDate(minDate.getDate());
+            $('#end').datepicker('setStartDate', minDate);
+        });
+
+        $("#end").datepicker({
+            endDate: todaydt,
+            autoclose: true,
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date);
+            minDate.setDate(minDate.getDate() - 1);
+            $('#start').datepicker('setEndDate', minDate);
+        });
+
+    });
+
+
+
+    //Clearing values in all selections when reset is selected
+    document.getElementById("clear").addEventListener("click", function () {
+        $('#linecode').val('');
+        $('#subsystem').val('');
+        $('#start').val('');
+        $('#end').val('');
+
+        var rowsCnt = document.getElementById("datatable-custom").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+        if (rowsCnt > 0) {
+            for (var i = 0; i < rowsCnt; i++) {
+                document.getElementById("datatable-custom").deleteRow(1);
+            }
+        }
+        if ($.fn.DataTable.isDataTable('#datatable-custom')) {
+            $('#datatable-custom').DataTable().clear();
+        }
+
+        if ($.fn.DataTable.isDataTable('#datatable-custom')) {
+            $('#datatable-custom').DataTable().destroy();
+        }
+    })
+    //getting start and end date and passing to getDiagnostics data function to retrieve
+    document.getElementById("viewdetails").addEventListener("click", function () {
+        var start = $('#start').val();
+        var end = $('#end').val();
+        getDiagnosticsdata(start,end);
+
+    })
+    //getting todays date and passing to getDiagnostics data function to retrieve
+    document.getElementById("todaydetails").addEventListener("click", function () {
+        var d = new Date();
+        var start = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+        var end = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + (d.getDate());
+
+
+        getDiagnosticstodaydata(start, end);
+
+    })
+    //getting last day's date and passing to getDiagnostics data function to retrieve
+    document.getElementById("lastdaydetails").addEventListener("click", function () {
+        var d = new Date();
+        var start = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + (d.getDate()-1);
+        var end = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + (d.getDate() - 1) ;
+        getDiagnosticslastdaydata(start, end);
+
+    })
+    /*
+     ** Function to retrieve history details based on the start and end date passed
+     * Function binds the value to the datatable
+     */
+
+
+    function loadrecentdata() {
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+        var active_tab = $('ul .active').attr("id");
+
+        $('.updated_time').text(new Date().toLocaleString());
+        $('.shift').text("N/A");
+
+        $(".custom_error").text('');
+        $(".custom_pre_error").text('');
+
+
+
+        @*var myData = {
+
+            "LineCode": '@Session["LineCode"]',
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]'
+        };
+        var R_url = '@Url.Action("Login", "Main")';
+
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+        $.ajax({
+            type: "POST",
+            url: URL + 'api/Diagnostics/DefaultDiagnostichistorical',
+            data: myData,
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            dataType: "json",
+            beforeSend: function () {
+                $('.loading').show();
+            },
+            complete: function () {
+                $('.loading').hide();
+            },
+
+            success: function (response) {
+                var rowsCnt = document.getElementById("datatable-custom").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                if (rowsCnt > 0) {
+                    for (var i = 0; i < rowsCnt; i++) {
+                        document.getElementById("datatable-custom").deleteRow(1);
+                    }
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-custom')) {
+                    $('#datatable-custom').DataTable().clear();
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-custom')) {
+                    $('#datatable-custom').DataTable().destroy();
+                }
+
+
+                if (response.data.length != 0) {
+                    // var j = 1;
+                    //for (var i = 0; i < response.data.length; i++) {
+                    //    var num = i + 1
+                    //    Diagnosticshistory_table.row.add([response.data[i].DeviceID, response.data[i].Devicename, response.data[i].DeviceRef, response.data[i].Event, response.data[i].LogTime]).draw();
+
+                    //}
+                    var CompanyName = '@Session["CompanyName"]';
+                    var PlantName = '@Session["PlantName"]';
+                    var LineName = '@Session["LineName"]';
+
+                    var html1 = "Date : " + new Date().toLocaleString() + "<br/>Company Name: " + CompanyName + " <br/>Plant Name: " + PlantName + "<br>Line Name :" + LineName + "";
+
+                    var j = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += "<td> " + response.data[i].DeviceID + "</td> ";
+                        cols += "<td> " + response.data[i].Devicename + "</td> ";
+                        cols += "<td> " + response.data[i].DeviceRef + "</td> ";
+                        cols += "<td> " + response.data[i].Event + "</td> ";
+                        cols += "<td> " + response.data[i].LogTime + "</td> ";
+                        cols += "</tr>";
+                        newRow.append(cols);
+                        $(".custom_details").append(newRow);
+                        j++;
+                    }
+
+                    $('#datatable-custom').DataTable({
+                        "autoWidth": false,
+                        dom: 'Bfrtip',
+                        "ordering": false,
+                        buttons: [{
+                            extend: 'excelHtml5',
+                            filename: "Diagnostics_data",
+                            title: html1.replace(/<br\s*\/?>/ig, "\r\n"),
+                            text: 'Export to Excel',  //By default it is excel. if you want to change it set "text" value.
+                            customize: function (xlsx) {
+                                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                                $('row:first c', sheet).attr('s', '55');
+                                $('row', sheet).first().attr('ht', '100').attr('customHeight', "1");
+                                //$('row c', sheet).each(function () {
+                                //    $(this).attr('s', '55');
+                                //});
+                                // $(this).attr('s', '55');
+                            }
+                        }]
+                    });
+
+                }
+                else {
+                    $("#datatable-custom").empty()
+                    $(".custom_error").text(response.msg);
+                }
+            },
+            error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });*@
+    }
+
+
+
+    function getDiagnosticsdata(start, end) {
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+        var active_tab = $('ul .active').attr("id");
+
+        $('.updated_time').text(new Date().toLocaleString());
+        $('.shift').text("N/A");
+
+        $(".custom_error").text('');
+        $(".custom_pre_error").text('');
+
+
+        if (start == '') {
+            swal({
+                icon: "error",
+                title: "Please Provide start date",
+                button: false,
+                timer: 4500
+            })
+        }
+        else if (end == '') {
+            swal({
+                icon: "error",
+                title: "Please Provide End date",
+                button: false,
+                timer: 4500
+            })
+        }
+        else {
+            if (start > end) {
+                swal({
+                    icon: "error",
+                    title: "Please Provide Dates correctly...",
+                    button: false,
+                    timer: 4500
+                })
+            }
+            else {
+                var myData = {
+
+                    "LineCode": '@Session["LineCode"]',
+                    "fromdate": start,
+                    "todate": end,
+                    "CompanyCode": '@Session["CompanyCode"]',
+                    "PlantCode": '@Session["PlantCode"]'
+                };
+                var R_url = '@Url.Action("Login", "Main")';
+
+                var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+                $.ajax({
+                    type: "POST",
+                    url: URL + 'api/Diagnostics/GetDiagnostichistorical',
+                    headers: {
+                        Authorization: 'Bearer ' + user1
+                    },
+                    data: myData,
+                    dataType: "json",
+                    beforeSend: function () {
+                        $('.loading').show();
+                    },
+                    complete: function () {
+                        $('.loading').hide();
+                    },
+
+                    success: function (response) {
+                        var rowsCnt = document.getElementById("datatable-custom").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                        if (rowsCnt > 0) {
+                            for (var i = 0; i < rowsCnt; i++) {
+                                document.getElementById("datatable-custom").deleteRow(1);
+                            }
+                        }
+
+                        if ($.fn.DataTable.isDataTable('#datatable-custom')) {
+                            $('#datatable-custom').DataTable().clear();
+                        }
+
+                        if ($.fn.DataTable.isDataTable('#datatable-custom')) {
+                            $('#datatable-custom').DataTable().destroy();
+                        }
+                        if (response.data.length != 0) {
+                            //var j = 1;
+                            //for (var i = 0; i < response.data.length; i++) {
+                            //    var num = i + 1
+                            //    Diagnosticshistory_table.row.add([response.data[i].DeviceID, response.data[i].Devicename, response.data[i].DeviceRef, response.data[i].Event, response.data[i].LogTime]).draw();
+
+                            //}
+                            var j = 1;
+                            for (var i = 0; i < response.data.length; i++) {
+
+                                var newRow = $("<tr>");
+                                var cols = '';
+                                cols += "<td> " + response.data[i].DeviceID + "</td> ";
+                                cols += "<td> " + response.data[i].Devicename + "</td> ";
+                                cols += "<td> " + response.data[i].DeviceRef + "</td> ";
+                                cols += "<td> " + response.data[i].Event + "</td> ";
+                                cols += "<td> " + response.data[i].LogTime + "</td> ";
+                                cols += "</tr>";
+                                newRow.append(cols);
+                                $(".custom_details").append(newRow);
+                                j++;
+                            }
+
+                            var CompanyName = '@Session["CompanyName"]';
+                            var PlantName = '@Session["PlantName"]';
+                            var LineName = '@Session["LineName"]';
+
+                            var html1 = "Date : " + new Date().toLocaleString() + "<br/>Company Name: " + CompanyName + " <br/>Plant Name: " + PlantName + "<br>Line Name :" + LineName + "";
+
+
+                            $('#datatable-custom').DataTable({
+                                "autoWidth": false,
+                                dom: 'Bfrtip',
+                                "ordering": false,
+                                buttons: [{
+                                    extend: 'excelHtml5',
+                                    filename: "Diagnostics_data",
+                                    title: html1.replace(/<br\s*\/?>/ig, "\r\n"),
+                                    text: 'Export to Excel',  //By default it is excel. if you want to change it set "text" value.
+                                    customize: function (xlsx) {
+                                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                                        $('row:first c', sheet).attr('s', '55');
+                                        $('row', sheet).first().attr('ht', '100').attr('customHeight', "1");
+                                        //$('row c', sheet).each(function () {
+                                        //    $(this).attr('s', '55');
+                                        //});
+                                        // $(this).attr('s', '55');
+                                    }
+                                }]
+                            });
+                        }
+                        else {
+                            $("#datatable-custom").empty()
+                            $(".custom_error").text(response.msg);
+                        }
+
+                    },
+                    error: function (response) {
+                        if (response.status == "401") {
+                            swal({
+                                icon: "warning",
+                                title: "Session Timeout",
+                                button: true,
+                                closeModal: false
+                            })
+                            window.location = R_url;
+                        }
+                        else {
+                            swal({
+                                icon: "warning",
+                                title: response.responseText,
+                                button: true,
+                                closeModal: false
+                            })
+
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    function getDiagnosticstodaydata(start, end) {
+
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+        var active_tab = $('ul .active').attr("id");
+
+        $('.updated_time').text(new Date().toLocaleString());
+        $('.shift').text("N/A");
+
+
+        $(".today_error").text('');
+        $(".today_pre_error").text('');
+
+        var myData = {
+
+            "LineCode": '@Session["LineCode"]',
+            "fromdate": start,
+            "todate": end,
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]'
+        };
+        var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+        $.ajax({
+            type: "POST",
+            url: URL + 'api/Diagnostics/GetDiagnostichistorical',
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            data: myData,
+            dataType: "json",
+            beforeSend: function () {
+                $('.loading').show();
+            },
+            complete: function () {
+                $('.loading').hide();
+            },
+
+            success: function (response) {
+                var rowsCnt = document.getElementById("datatable-today").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                if (rowsCnt > 0) {
+                    for (var i = 0; i < rowsCnt; i++) {
+                        document.getElementById("datatable-today").deleteRow(1);
+                    }
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-today')) {
+                    $('#datatable-today').DataTable().clear();
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-today')) {
+                    $('#datatable-today').DataTable().destroy();
+                }
+
+                if (response.data.length != 0) {
+                    //var j = 1;
+                    //for (var i = 0; i < response.data.length; i++) {
+                    //    var num = i + 1
+                    //    Diagnosticshistory_table.row.add([response.data[i].DeviceID, response.data[i].Devicename, response.data[i].DeviceRef, response.data[i].Event, response.data[i].LogTime]).draw();
+
+                    //}
+                    var j = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += "<td> " + response.data[i].DeviceID + "</td> ";
+                        cols += "<td> " + response.data[i].Devicename + "</td> ";
+                        cols += "<td> " + response.data[i].DeviceRef + "</td> ";
+
+
+                        var event = "";
+
+                        if (response.data[i].DeviceRef == VPN_Connectivity) {
+                            /*alert("ok");*/
+                            response.data[i].Event = "Connected";
+                        }
+
+
+                        cols += "<td> " + response.data[i].Event + "</td> ";
+                        cols += "<td> " + response.data[i].LogTime + "</td> ";
+                        cols += "</tr>";
+                        newRow.append(cols);
+                        $(".today_details").append(newRow);
+                        j++;
+                    }
+
+                    var CompanyName = '@Session["CompanyName"]';
+                    var PlantName = '@Session["PlantName"]';
+                    var LineName = '@Session["LineName"]';
+
+                    var html1 = "Date : " + new Date().toLocaleString() + "<br/>Company Name: " + CompanyName + " <br/>Plant Name: " + PlantName + "<br>Line Name :" + LineName + "";
+
+
+                    $('#datatable-today').DataTable({
+                        "autoWidth": false,
+                        dom: 'Bfrtip',
+                        buttons: [{
+                            extend: 'excelHtml5',
+                            filename: "Diagnostics_data",
+                            title: html1.replace(/<br\s*\/?>/ig, "\r\n"),
+                            text: 'Export to Excel',
+                            customize: function (xlsx) {
+                                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                                $('row:first c', sheet).attr('s', '55');
+                                $('row', sheet).first().attr('ht', '100').attr('customHeight', "1");
+                                //$('row c', sheet).each(function () {
+                                //    $(this).attr('s', '55');
+                                //});
+                                // $(this).attr('s', '55');
+                            }
+                        }]
+                    });
+
+
+                }
+                else {
+                    $("#datatable-today").empty()
+                    $(".today_error").text(response.msg);
+                }
+
+            },
+            error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });
+
+    }
+
+    function getDiagnosticslastdaydata(start, end) {
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+        var active_tab = $('ul .active').attr("id");
+
+        $('.updated_time').text(new Date().toLocaleString());
+        $('.shift').text("N/A");
+
+        $(".lasttoday_error").text('');
+        $(".lasttoday_pre_error").text('');
+
+        var myData = {
+
+            "LineCode": '@Session["LineCode"]',
+            "fromdate": start,
+            "todate": end,
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]'
+        };
+        var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+        $.ajax({
+            type: "POST",
+            url: URL + 'api/Diagnostics/GetDiagnostichistorical',
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            data: myData,
+            dataType: "json",
+            beforeSend: function () {
+                $('.loading').show();
+            },
+            complete: function () {
+                $('.loading').hide();
+            },
+
+            success: function (response) {
+                var rowsCnt = document.getElementById("datatable-lastday").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                if (rowsCnt > 0) {
+                    for (var i = 0; i < rowsCnt; i++) {
+                        document.getElementById("datatable-lastday").deleteRow(1);
+                    }
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-lastday')) {
+                    $('#datatable-lastday').DataTable().clear();
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-lastday')) {
+                    $('#datatable-lastday').DataTable().destroy();
+                }
+
+
+                if (response.data.length != 0) {
+                    //var j = 1;
+                    //for (var i = 0; i < response.data.length; i++) {
+                    //    var num = i + 1
+                    //    Diagnosticshistory_table.row.add([response.data[i].DeviceID, response.data[i].Devicename, response.data[i].DeviceRef, response.data[i].Event, response.data[i].LogTime]).draw();
+
+                    //}
+
+                    var j = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += "<td> " + response.data[i].DeviceID + "</td> ";
+                        cols += "<td> " + response.data[i].Devicename + "</td> ";
+                        cols += "<td> " + response.data[i].DeviceRef + "</td> ";
+                        cols += "<td> " + response.data[i].Event + "</td> ";
+                        cols += "<td> " + response.data[i].LogTime + "</td> ";
+                        cols += "</tr>";
+                        newRow.append(cols);
+                        $(".lastday_details").append(newRow);
+                        j++;
+                    }
+
+                    var CompanyName = '@Session["CompanyName"]';
+                    var PlantName = '@Session["PlantName"]';
+                    var LineName = '@Session["LineName"]';
+
+                    var html1 = "Date : " + new Date().toLocaleString() + "<br/>Company Name: " + CompanyName + " <br/>Plant Name: " + PlantName + "<br>Line Name :" + LineName + "";
+
+                    $('#datatable-lastday').DataTable({
+                        "autoWidth": false,
+                        dom: 'Bfrtip',
+                        buttons: [{
+                            extend: 'excelHtml5',
+                            filename: "Diagnostics_data",
+                            title: html1.replace(/<br\s*\/?>/ig, "\r\n"),
+                            text: 'Export to Excel',
+                            customize: function (xlsx) {
+                                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                                $('row:first c', sheet).attr('s', '55');
+                                $('row', sheet).first().attr('ht', '100').attr('customHeight', "1");
+                            }
+                        }]
+                    });
+                }
+                else {
+                    $("#datatable-lastday").empty()
+                    $(".lastday_error").text(response.msg);
+                }
+
+            },
+            error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });
+    }
+
+</script>
+
+<script type="text/javascript">
+    /*
+     Function to check if,
+     line code,plantcode and company code selected on initial page load
+     */
+    $(function () {
+        var CompanyCode = '@Session["CompanyCode"]';
+        var PlantCode = '@Session["PlantCode"]';
+        var LineCode = '@Session["LineCode"]';
+        if (CompanyCode == "" && PlantCode == "" && LineCode == "") {
+            swal({
+                icon: "error",
+                title: "Please Select Customer, Plant and Line...!",
+                button: true,
+                timer: 4500
+            })
+            return;
+        }
+        else
+            if (CompanyCode == "") {
+                swal({
+                    icon: "error",
+                    title: "Please Select Customer...!",
+                    button: true,
+                    timer: 4500
+                })
+                return;
+            }
+            else
+                if (PlantCode == "") {
+                    swal({
+                        icon: "error",
+                        title: "Please Select Plant...!",
+                        button: true,
+                        timer: 4500
+                    })
+                    return;
+                }
+                if (LineCode == "") {
+                    swal({
+                        icon: "error",
+                        title: "Please Select Line...!",
+                        button: true,
+                        timer: 4500
+                    })
+                    return;
+                }
+
+
+    });
+</script>
+
+<script>
+    /*
+     Function to download table contents
+     Parameters - tableid and downloaded file name
+     */
+
+    function exportTableToExcel1(tableID, filename = '') {
+        var downloadLink;
+        //  Create additional contents like company code,plantcode
+         @*var companycode_table='@Session["CompanyCode"].ToString()';
+        var plantcode_table = '@Session["PlantCode"].ToString()';
+        var line_name = '@Session["LineCode"]';
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        var html1 = "<p>Date : " + new Date().toLocaleString() + "<br>Company Name: " + companycode_table + "<br>Plant Name: " + plantcode_table + "<br>Line Name :" + line_name + " <p>"
+        var HTML = html1 + tableHTML;
+
+        // Specify file name
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            var blob = new Blob(['\ufeff', HTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + HTML;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            //triggering the function
+            downloadLink.click();*@
+
+    //}
+        //new for checking
+          var companycode_table='@Session["CompanyCode"].ToString()';
+        var plantcode_table = '@Session["PlantCode"].ToString()';
+        var Linecode_table='@Session["LineCode"].ToString()';
+        var table = document.getElementById(tableID);
+        var html1 = "<p>Date : " + new Date().toLocaleString() + "<br>Company Name: " + companycode_table + "<br>Plant Name: " + plantcode_table + "<br>Line Name: " + Linecode_table + " <p>"
+       // var html1 = "<p>Date : " + new Date().toLocaleString() + "<br>Company Name: " + companycode_table+"<br>Plant Name: " + plantcode_table + "<br>Line Name :" + line_name + "<br>Shift: " + window.shift + " <p>"
+        var html = html1+table.outerHTML;
+        console.log(html)
+
+
+            var url = 'data:application/vnd.ms-excel,' + escape(html); // Set your html table into url
+            //console.log(url)
+            //elem.setAttribute("href", url);
+            //elem.setAttribute("download", "export.xls"); // Choose the file name
+            var link = document.createElement("a");
+            link.download = filename;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            delete link;
+
+        return false;
+
+
+    }
+
+    //new
+    var exportTableToExcel = (function () {
+        var uri = 'data:application/vnd.ms-excel;base64,'
+            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><meta http-equiv="content-type" content="text/plain; charset=UTF-8"/></head><body><table>{table}</table></body></html>'
+            , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+            , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+        return function (table, name='Diagnostics History') {
+            var companycode_table='@Session["CompanyCode"].ToString()';
+            var plantcode_table = '@Session["PlantCode"].ToString()';
+            var Linecode_table='@Session["LineCode"].ToString()';
+            var html1 = "<p>Date : " + new Date().toLocaleString() + "<br>Company Name: " + companycode_table + "<br>Plant Name: " + plantcode_table + " <p>"
+            if (!table.nodeType) table = document.getElementById(table)
+            var ctx = { worksheet: name || 'Worksheet', table: html1 + table.innerText }
+            //window.location.href = uri + base64(format(template, ctx))
+
+            var link = document.createElement("a");
+            link.download = 'Diagnostic History';
+            link.href = uri + base64(format(template, ctx));
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            delete link;
+        }
+
+        @*window.location = '@Url.Action("Diagnostics_Exceldownload", "Diagnostics")';*@
+    })
+
+
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.updated_time').text("N/A");
+        $('.shift').text("N/A");
+
+        loadrecentdata();
+    });
+</script>
+
+

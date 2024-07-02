@@ -1,0 +1,3575 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .dataTables_filter {
+        float: right;
+    }
+</style>
+<header class="page-header">
+    <h2>Data Log View</h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            <li><span>Raw Tables</span></li>
+        </ol>
+    </div>
+</header>
+
+
+@if (ViewContext.Controller.HasPermission("Rawtableview-View"))
+{
+    <div class="row" id="Historic" style="display:block;">
+
+        <div class="col-md-2"></div>
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;"> Raw Tables </h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+
+                        <label class="col-sm-2 control-label"> Select Machine  <span class="required">*</span></label>
+                        <div class="col-sm-2">
+                            <select class="form-control" id="Machine">
+                                <option value="0">Select</option>
+                            </select>
+                        </div>
+
+                        <label class="col-sm-2 control-label"> Report  <span class="required">*</span></label>
+                        <div class="col-sm-2">
+                            <select class="form-control" id="Report_name">
+                                <option value="0">Select</option>
+                                <option value="1">Rawtable</option>
+                                <option value="2">AlertRawtable</option>
+                                <option value="3">Cycletime</option>
+                                <option value="4">Operator Efficiency</option>
+                                <option value="5">Toollife</option>
+                                <option value="6">MachineAlarm</option>
+                                <option value="7">MachineLoss</option>
+                                <option value="8">Diagnostics Event</option>
+                                <option value="9">Hourly Tracker</option>
+                                <option value="10">Cycle time Rawtable</option>
+                                <option value="11">Machine_statuswise Production</option>
+                            </select>
+                        </div>
+                        <label class="col-sm-2 control-label"> Limit  <span class="required">*</span></label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="" id="data_Limit" value="" placeholder="1 To 50000" min="1" max="50000" autocomplete="off" />
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="form-group" style="display:none " id="div_time_slot">
+
+                        <div class="">
+                            <label class="col-sm-2 control-label"> Select Duration  <span class="required">*</span></label>
+                            <div class="col-sm-2">
+                                <select class="form-control" id="TimeSlot">
+                                    <option value="0">Select </option>
+                                    <option value="Today">Today</option>
+                                    <option value="Custom"> Custom</option>
+
+
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <div class="form-group daterangeselect" style="display:none;">
+
+                            <label class="col-md-2 control-label">Date range</label>
+                            <div class="col-md-6">
+                                <div class="input-daterange input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control datepic" style="text-align:left;z-index:0;" id="start" name="start" readonly required>
+                                    <span class="input-group-addon">to</span>
+                                    <input type="text" class="form-control datepic" style="text-align:left;z-index:0;" id="end" name="end" readonly required>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display:none;" id="div_dates">
+                        <label class="col-sm-2 control-label"> From Date  <span class="required">*</span></label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control datepic" id="FromDate" readonly required />
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="time" class="form-control" id="From_time" />
+                        </div>
+                        <label class="col-sm-2 control-label"> To Date  <span class="required">*</span></label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control datepic" id="ToDate" readonly required />
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="time" class="form-control" id="To_time" />
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-9 col-sm-offset-3" style="text-align:right;">
+                            <button type="button" id="Search_RW" class="btn btn-primary">Search</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Reset</button>
+                        </div>
+                    </div>
+                </footer>
+
+            </section>
+        </div>
+    </div>
+
+
+    <div class="row" id="Raw_tables" style="display:none;">
+        <div class="col-md-2"></div>
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">
+                        Raw Tables <span style="padding-left:300px;">Start Timestamp: <span id="s_date"></span> </span>
+                        <span style="float:right;">End Timestamp:  <span id="e_date"></span> </span>
+                    </h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+
+                        <table class="table table-bordered table-striped mb-none" id="datatable-default" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                            <thead style="background-color:teal;color:white;">
+                                <tr class="noExl">
+                                    <th class="text-center">S.No</th>
+                                    <th class="text-center">TimeStamp</th>
+                                    <th class="text-center">Shift</th>
+                                    <th class="text-center">Variant Code</th>
+                                    <th class="text-center">Machine Status</th>
+                                    <th class="text-center">Ok Parts</th>
+                                    <th class="text-center">NOK Parts</th>
+                                    <th class="text-center">Rework Parts</th>
+                                    <th class="text-center">Reject Reason</th>
+                                    <th class="text-center">Auto Mode Selected</th>
+                                    <th class="text-center">Manual Mode Selected</th>
+                                    <th class="text-center">Auto Mode Running</th>
+                                    <th class="text-center">OperatorID</th>
+                                    <th class="text-center">Live Alarm</th>
+                                    <th class="text-center">Live Loss</th>
+                                    <th class="text-center">Batch Code</th>
+                                </tr>
+                            </thead>
+                            <tbody class="raw_table_details"></tbody>
+                        </table>
+                    </div>
+
+                    <span class="raw_table_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+    <div class="row" id="Alert_Raw_tables" style="display:none;">
+        <div class="col-md-2"></div>
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;"> Alert Raw Tables  </h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <table class="table table-bordered table-striped mb-none" id="datatable-default_alert" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>TimeStamp</th>
+                                    <th>Date</th>
+                                    <th>Live_Alarm</th>
+                                    <th>Live_Loss</th>
+                                    <th>Machine_Status</th>
+                                    <th>Shift ID</th>
+                                </tr>
+                            </thead>
+                            <tbody class="alert_raw_table_details"></tbody>
+                        </table>
+                    </div>
+                    <span class="alert_raw_table_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+                </div>
+
+
+            </section>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+
+<div class="row" id="Cycle_Raw_tables" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> CycleTime  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_cycle" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>TimeStamp</th>
+                                <th>Operator ID</th>
+                                <th>Shift</th>
+                                <th>Ok Parts</th>
+                                <th>NOK Parts</th>
+                                <th>Rework Parts</th>
+                                <th>Reject Reason</th>
+                                <th>Variant Code</th>
+                            </tr>
+                        </thead>
+                        <tbody class="cycletime_details"></tbody>
+                    </table>
+                </div>
+                <span class="cycletime_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<div class="row" id="Operator_efficiency" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Operator Efficiency  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_operator" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>TimeStamp</th>
+                                <th>Shift</th>
+                                <th>Variant Code</th>
+                                <th>Ok Parts</th>
+                                <th>NOK Parts</th>
+                                <th>Operator ID</th>
+                                <th>Machine Status</th>
+                                <th>Manual Cycletime</th>
+                                <th>Start Time of Operation</th>
+                                <th>End Time of Operation</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="efficiency_details"></tbody>
+                    </table>
+                </div>
+                <span class="efficiency_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<div class="row" id="Raw_toollife" style="display:none;">
+
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Toollife  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_toollife" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>TimeStamp</th>
+                                <th>Date</th>
+                                <th>Tool ID</th>
+                                <th>Classification</th>
+                                <th>Current Life Cycle</th>
+                            </tr>
+                        </thead>
+                        <tbody class="toollife_details"></tbody>
+                    </table>
+                </div>
+                <span class="toollife_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<div class="row" id="Machine_Alarm" style="display:none;">
+
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Machine Alarm  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_alarm" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                @*<th>TimeStamp</th>*@
+                                <th>Date</th>
+                                <th>Shift ID</th>
+                                <th>Alarm ID</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Alarm Duration(in secs)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="alarm_details"></tbody>
+                    </table>
+                </div>
+                <span class="alarm_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<div class="row" id="machine_loss" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Machine Loss  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_loss" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                @*<th>TimeStamp</th>*@
+                                <th>Date</th>
+                                <th>Shift ID</th>
+                                <th>Loss ID</th>
+                                @*<th>Reason</th>*@
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Loss Duration(in secs)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="loss_details"></tbody>
+                    </table>
+                </div>
+                <span class="loss_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<div class="row" id="Diagnostics_tables" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Diagnostics Tables  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_diag" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>TimeStamp</th>
+                                <th>Device ID</th>
+                                <th>Device Ref</th>
+                                <th>Event</th>
+                            </tr>
+                        </thead>
+                        <tbody class="Diagnostics_details"></tbody>
+                    </table>
+                </div>
+                <span class="Diagnostics_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row" id="Hourly_tables" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Hourly Tracker Table  </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_Hourly" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Date</th>
+                                <th>Shift</th>
+                                <th>Batch</th>
+                                <th>Hour Number</th>
+                                <th>Hour Start</th>
+                                <th>Hour End</th>
+                                <th>Variant</th>
+                                <th>Operator</th>
+                                <th>OK Parts</th>
+                                <th>NOK Parts</th>
+                                <th>A</th>
+                                <th>P</th>
+                                <th>Q</th>
+                                <th>OEE</th>
+                                <th>Uptime(min / %)</th>
+                                <th>Downtime(min / %)</th>
+                                <th>Losstime(min / %)</th>
+                                <th>Breaktime(min / %)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="Hourly_details"></tbody>
+                    </table>
+                </div>
+                <span class="Hourly_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+
+<div class="row" id="Cycletime_Raw_tables" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> CycleTime Raw Table  </h2>
+                @*<div style="text-align:right;font-weight:bold;">
+                        Only Latest 1000 Records to display based on Selection.
+                    </div>*@
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable_cycle">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Date</th>
+                                <th>Machine Code</th>
+                                <th>Line Code</th>
+                                <th>Operations</th>
+                                <th>Operation Time</th>
+                                <th>Actual Cycle time</th>
+                                <th>Ok Parts</th>
+                                <th>NOK Parts</th>
+                                <th>Total Parts</th>
+                                <th>Type</th>
+                                <th>Shift</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody class="cycletime_raw_details"></tbody>
+                    </table>
+                </div>
+                <span class="cycletime_raw_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+                <div class="row" style="display:none" id="button1">
+                    <div class="col-sm-9 col-sm-offset-3" style="text-align:right;">
+
+                        <button type="button" id="export" onclick="exportTableToExcel9()" class="btn btn-primary">Export1</button>
+                        @*<button type="button" id="export_Rawtable"  class="btn btn-danger">Export2</button>*@
+
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row" id="data_Machinestatus" style="display:none;">
+    <div class="col-md-2"></div>
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                <div class="panel-actions">
+                </div>
+                <h2 class="panel-title" style="color:white;"> Machine Statuswise Production </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <table class="table table-bordered table-striped mb-none" id="datatable-default_MS" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Shift</th>
+                                <th>Batch</th>
+                                <th>Timestamp</th>
+                                <th>Variant</th>
+                                <th>OK Parts</th>
+                                <th>NOK Parts</th>
+                                <th>Machine Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="Machine_status"></tbody>
+                    </table>
+                </div>
+                <span class="Machine_status_error" style="color:red;font-size:13px;font-weight:bold;"></span>
+
+
+            </div>
+        </section>
+    </div>
+</div>
+
+
+
+
+<script src="~/assets1/javascripts/tables/table2excel.js"></script>
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+
+
+
+<script type="text/javascript">
+
+
+    //Function to select row
+    $("#datatable-default tbody tr").click(function () {
+        var bl;
+        var editval;
+        if ($(this).hasClass('selected')) {
+            bl = "row selected";
+            $(this).removeClass('selected');
+        }
+        else {
+            bl = "row unselected";
+            $(this).addClass('selected').siblings().removeClass('selected');
+            editval = $(this).find('td:first').html();
+            //alert(editval)
+        }
+    });
+
+
+
+</script>
+
+<script type="text/javascript">
+
+    var Report_name = $("#Report_name").val();
+    var TimeSlot = $("#TimeSlot").val();
+
+
+
+    $("#Report_name").on("change", function () {
+        $(".daterangeselect").hide();
+        $('#start').val("");
+        $('#end').val("");
+        $('#FromDate').val("");
+        $('#ToDate').val("");
+        $('#TimeSlot').val("0");
+
+        if (this.value != 10 && this.value != 0) {
+
+            $("#div_time_slot").show();
+            $("#div_dates").hide();
+        }
+        else if (this.value == 10) {
+            $("#div_dates").show();
+            $("#div_time_slot").hide();
+            $(".daterangeselect").hide();
+
+        }
+
+
+
+    });
+
+
+    $("#TimeSlot").on("change", function () {
+
+
+        var Report_name = $("#Report_name").val();
+
+        if (this.value == 'Custom' && Report_name != 10 && Report_name != 0) {
+            $(".daterangeselect").show();
+            $("#div_dates").hide();
+        }
+
+        else if (this.value == "Today") {
+
+            $(".daterangeselect").hide();
+            $("#div_dates").hide();
+            $('#start').val("");
+            $('#end').val("");
+            $('#FromDate').val("");
+            $('#ToDate').val("");
+        }
+
+
+
+    });
+
+    //$('#Report_name').on('change', function () {
+
+    //    alert(this.value);
+
+    //    if (this.value == 10) {
+    //        $("#div_dates").show();
+    //        $(".daterangeselect").hide();
+    //    }
+    //    else {
+
+    //        $("#div_dates").hide();
+    //        $(".daterangeselect").show();
+
+    //        $("#start").val("");
+    //        $("#end").val("");
+    //    }
+
+    //});
+
+
+    $("#cancel").click(function () {
+
+        window.location = '@Url.Action("Index","DataView")'
+
+    });
+
+</script>
+
+<script>
+
+    function sanitize(string12) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            "/": '&#x2F;',
+        };
+        const reg = /[&<>"'/]/ig;
+        return string12.replace(reg, (match) => (map[match]));
+
+
+    }
+
+    function check(ctrl) {
+
+
+        var remval = sanitize(ctrl);
+        var conditions = ["&lt;", "&#x2F;", "&#x27;", "&amp;", "&gt;", "&quot;"];
+        var test1 = conditions.some(el => remval.includes(el));
+        if (test1 == true) {
+            swal({
+                icon: "error",
+                title: "Entered Text contain special charecters which is not allowed",
+                button: true,
+                timer: 4500
+            })
+            ctrl = ''
+            return false
+        }
+    }
+
+
+    function myFunction() {
+
+        let x = document.getElementById("data_Limit").value;
+        if (isNaN(x)) {
+            swal({
+                icon: "error",
+                title: "Entered Text contain special charecters which is not allowed",
+                button: true,
+                timer: 4500
+            })
+        }
+        x = Number(x);
+        if (x > 50000) {
+            swal({
+                icon: "error",
+                title: "limit value is too high,please enter(<50000)..",
+                button: true,
+                timer: 4500
+            })
+
+
+        }
+
+
+
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    $(function () {
+
+        var todaydt = new Date();
+        $("#FromDate").datepicker({
+            autoclose: true,
+            endDate: todaydt,
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date);
+            minDate.setDate(minDate.getDate());
+            $('#ToDate').datepicker('setStartDate', minDate);
+        });
+
+        $("#ToDate").datepicker({
+            autoclose: true,
+            endDate: todaydt,
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date);
+            minDate.setDate(minDate.getDate() - 1);
+            $('#FromDate').datepicker('setEndDate', minDate);
+        });
+
+    });
+
+    $(function () {
+
+        var todaydt = new Date();
+        $("#start").datepicker({
+            autoclose: true,
+            endDate: todaydt,
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date);
+            minDate.setDate(minDate.getDate()+1);
+            $('#end').datepicker('setStartDate', minDate);
+        });
+
+        $("#end").datepicker({
+            endDate: todaydt,
+            autoclose: true,
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date);
+            minDate.setDate(minDate.getDate() - 1);
+            $('#start').datepicker('setEndDate', minDate);
+        });
+
+    });
+
+    $(document).ready(function () {
+
+    $(".datepic").datepicker({
+        format: "yyyy-mm-dd",
+        orientation: "top",
+        endDate: '+0d'
+    });
+
+
+
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+        var data_machine = {
+            "QueryType": "Get_machine",
+            "Parameter": '@Session["CompanyCode"]',
+            "Parameter1": '@Session["PlantCode"]',
+            "Parameter2": '@Session["LineCode"]',
+        };
+        var myData = {
+            "Flag": "Subsystem",
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "LineCode": '@Session["LineCode"]',
+        };
+        $.ajax({
+            type: "POST",
+            data: myData,
+            headers: {
+                Authorization: 'Bearer ' + user1
+            },
+            url:"../Main/GetSettingdatas1",
+            dataType: "json",
+
+            success: function (response)
+            {
+                var s = '<option value="0">Select Machine</option>';
+                for (var i = 0; i < response.data.length; i++) {
+                    s += '<option value="' + response.data[i].Code + '">' + response.data[i].Code + "-" + response.data[i].Name + '</option>';
+                }
+                $("#Machine").html(s);
+            }
+        })
+        $('.updated_time').text("N/A");
+        $('.shift').text("N/A");
+    });
+
+
+    document.getElementById("Search_RW").addEventListener("click", function () {
+
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+        var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+        var Machine = $("#Machine").val();
+        var Report_name = $("#Report_name").val();
+        var data_Limit = $("#data_Limit").val();
+        var Duration = $("#TimeSlot").val();
+
+        console.log(data_Limit)
+
+        //var Reg_result = data_Limit.match(/[+n]/);
+        //console.log(Reg_result)
+
+        // added the Regx
+
+        const Regx = new RegExp(/[^0-9]/);
+        var result = Regx.test(data_Limit)
+
+        if (Machine == "0") {
+            swal({
+                icon: "warning",
+                title: "Please Select Machine ",
+                button: true,
+                closeModal: false
+            })
+        }
+        else if (Report_name == "0") {
+            swal({
+                icon: "warning",
+                title: "Please Select Report ",
+                button: true,
+                closeModal: false
+            })
+        }
+        else if (data_Limit == "") {
+            swal({
+                icon: "warning",
+                title: "Please Enter the Limit Value  ",
+                button: true,
+                closeModal: false
+            })
+        }
+        else if (result == true) {
+            swal({
+                icon: "warning",
+                title: " Invalied Value,Please check.. ",
+                button: true,
+                closeModal: false
+            })
+        }
+        else if (data_Limit == 0) {
+            swal({
+                icon: "warning",
+                title: " Invalied Value,Please check.. ",
+                button: true,
+                closeModal: false
+            })
+        }
+        else if (data_Limit > 50000) {
+            swal({
+                icon: "error",
+                title: "limit value is too high,please enter(>50000)..",
+                button: true,
+                timer: 4500
+            })
+        }
+        //else if (Duration == "0") {
+        //    swal({
+        //        icon: "error",
+        //        title: "Please select the duration..",
+        //        button: true,
+        //        timer: 4500
+        //    })
+        //}
+
+
+        else {
+
+
+            $("#Raw_tables").hide();
+            $("#Alert_Raw_tables").hide();
+            $("#Cycle_Raw_tables").hide();
+            $("#Operator_efficiency").hide();
+            $("#Raw_toollife").hide();
+            $("#Machine_Alarm").hide();
+            $("#machine_loss").hide();
+            $("#Diagnostics_tables").hide();
+            $("#Hourly_tables").hide();
+
+
+            if (Report_name == "1") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please select date...",
+                            button: false,
+                            timer: 4500
+                        })
+
+                    }
+                    else {
+                        var myData = {
+                            "QueryType": "Get_Rawtable",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+                                $("#Raw_tables").show();
+
+                                $(".raw_table_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default')) {
+                                    $('#datatable-default').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default')) {
+                                    $('#datatable-default').DataTable().destroy();
+                                }
+
+
+                                if (response.status != "Error") {
+                                    $("#s_date").html(response.data.Table[0].start);
+                                    $("#e_date").html(response.data.Table[0].end);
+
+                                    var j = 1;
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Variant_Code + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Machine_Status + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].OK_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].NOK_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Rework_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Rejection_Reasons + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Auto__Mode_Selected + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Manual_Mode_Slected + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Auto_Mode_Running + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].OperatorID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Live_Alarm + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Live_Loss + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Batch_code + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".raw_table_details").append(newRow);
+                                        j++;
+                                    }
+
+                                    var rawtable_table = $('#datatable-default').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+                                    });
+
+                                }
+
+                                else {
+
+                                    $(".raw_table_error").text(response.msg);
+
+                                }
+
+
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+                    }
+                }
+                else if (Duration == "Today") {
+                    var myData = {
+                        "QueryType": "Get_Rawtable",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+                            $("#Raw_tables").show();
+                            $(".raw_table_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default')) {
+                                $('#datatable-default').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default')) {
+                                $('#datatable-default').DataTable().destroy();
+                            }
+
+
+                            if (response.status != "Error") {
+
+                                $("#s_date").html(response.data.Table[0].start);
+                                $("#e_date").html(response.data.Table[0].end);
+                                var j = 1;
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Variant_Code + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Machine_Status + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OK_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].NOK_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Rework_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Rejection_Reasons + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Auto__Mode_Selected + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Manual_Mode_Slected + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Auto_Mode_Running + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OperatorID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Live_Alarm + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Live_Loss + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Batch_code + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".raw_table_details").append(newRow);
+                                    j++;
+                                }
+
+                                var rawtable_table = $('#datatable-default').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": true,
+                                    "scrollX": true,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+                                });
+
+                            }
+
+                            else {
+
+                                $(".raw_table_error").text(response.msg);
+
+                            }
+
+
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+                }
+            }
+            else if (Report_name == "2") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+                        var myData = {
+                            "QueryType": "Get_AlertRawtable",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Alert_Raw_tables").show();
+
+                                $(".alert_raw_table_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_alert").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_alert").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_alert')) {
+                                    $('#datatable-default_alert').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_alert')) {
+                                    $('#datatable-default_alert').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Alarm + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Loss + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Machine_status + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".alert_raw_table_details").append(newRow);
+                                        j++;
+                                    }
+
+                                    $('#datatable-default_alert').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+                                    });
+                                }
+
+                                else {
+
+                                    $(".alert_raw_table_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+                    }
+                }
+                else {
+
+                    var myData = {
+                        "QueryType": "Get_AlertRawtable",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Alert_Raw_tables").show();
+
+                            $(".alert_raw_table_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_alert").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_alert").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_alert')) {
+                                $('#datatable-default_alert').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_alert')) {
+                                    $('#datatable-default_alert').DataTable().destroy();
+                                }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Alarm + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Loss + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Machine_status + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".alert_raw_table_details").append(newRow);
+                                    j++;
+                                }
+
+                                $('#datatable-default_alert').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+                                });
+                            }
+
+                            else {
+
+                                $(".alert_raw_table_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+                }
+            }
+            else if (Report_name == "3") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+                        var myData = {
+                            "QueryType": "Get_Cycletime",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Cycle_Raw_tables").show();
+
+                                $(".cycletime_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_cycle").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_cycle").deleteRow(1);
+                                    }
+                                }
+
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_cycle')) {
+                                    $('#datatable-default_cycle').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_cycle')) {
+                                    $('#datatable-default_cycle').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].OperatorID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Ok_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].NOk_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Rework_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Reject_Reason + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Variant_Code + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".cycletime_details").append(newRow);
+                                        j++;
+                                    }
+                                    $('#datatable-default_cycle').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+                                    });
+                                }
+
+                                else {
+
+                                    $(".cycletime_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+
+                    }
+
+
+                }
+                else {
+
+                    var myData = {
+                        "QueryType": "Get_Cycletime",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Cycle_Raw_tables").show();
+
+                            $(".cycletime_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_cycle").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_cycle").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_cycle')) {
+                                $('#datatable-default_cycle').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_cycle')) {
+                                $('#datatable-default_cycle').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OperatorID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Ok_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].NOk_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Rework_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Reject_Reason + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Variant_Code + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".cycletime_details").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable-default_cycle').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+                                });
+                            }
+
+                            else {
+
+                                $(".cycletime_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+
+
+                }
+
+
+            }
+            else if (Report_name == "4") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+
+                        var myData = {
+                            "QueryType": "Get_Efficiency",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Operator_efficiency").show();
+
+                                $(".efficiency_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_operator").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_operator").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_operator')) {
+                                    $('#datatable-default_operator').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_operator')) {
+                                    $('#datatable-default_operator').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Variant_Code + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Ok_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].NOk_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].OperatorID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Machine_Status + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Manual_CycleTime + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].StartTime_Operation + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].EndTime_Operation + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".efficiency_details").append(newRow);
+                                        j++;
+                                    }
+
+                                    $('#datatable-default_operator').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+
+
+                                    });
+
+                                }
+
+                                else {
+
+                                    $(".efficiency_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+
+
+                    }
+
+                }
+                else {
+
+
+                    var myData = {
+                        "QueryType": "Get_Efficiency",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Operator_efficiency").show();
+
+                            $(".efficiency_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_operator").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_operator").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_operator')) {
+                                $('#datatable-default_operator').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_operator')) {
+                                $('#datatable-default_operator').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Variant_Code + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Ok_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].NOk_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OperatorID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Machine_Status + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Manual_CycleTime + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].StartTime_Operation + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].EndTime_Operation + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".efficiency_details").append(newRow);
+                                    j++;
+                                }
+
+                                $('#datatable-default_operator').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+
+
+                                });
+
+                            }
+
+                            else {
+
+                                $(".efficiency_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+
+
+                    /*    }*/
+                }
+
+
+            }
+            else if (Report_name == "5") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == 'Custom') {
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+
+                        var myData = {
+
+                            "QueryType": "Get_Toollife",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Raw_toollife").show();
+
+                                $(".toollife_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_toollife").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_toollife").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_toollife')) {
+                                    $('#datatable-default_toollife').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_toollife')) {
+                                    $('#datatable-default_toollife').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].ToolID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Classification + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].CurrentLifeCycle + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".toollife_details").append(newRow);
+                                        j++;
+                                    }
+                                    $('#datatable-default_toollife').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+
+
+                                    });
+
+                                }
+
+                                else {
+
+                                    $(".toollife_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+
+                    }
+
+                }
+                else {
+
+
+                    var myData = {
+
+                        "QueryType": "Get_Toollife",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Raw_toollife").show();
+
+                            $(".toollife_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_toollife").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_toollife").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_toollife')) {
+                                $('#datatable-default_toollife').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_toollife')) {
+                                $('#datatable-default_toollife').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].ToolID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Classification + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].CurrentLifeCycle + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".toollife_details").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable-default_toollife').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+
+
+                                });
+
+                            }
+
+                            else {
+
+                                $(".toollife_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+
+                    /*   }*/
+
+                }
+
+            }
+            else if (Report_name == "6") {
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+
+                        var myData = {
+                            "QueryType": "Get_Machinealarm",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Machine_Alarm").show();
+
+                                $(".alarm_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_alarm").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_alarm").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_alarm')) {
+                                    $('#datatable-default_alarm').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_alarm')) {
+                                    $('#datatable-default_alarm').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+
+
+
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var startdate = new Date(response.data.Table[i].Start_Time)
+                                        var enddate = new Date(response.data.Table[i].End_Time)
+                                        var tempdiff = (enddate.getTime() - startdate.getTime()) / 1000;
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        //cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift_ID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Alarm_Description + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Start_Time + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].End_Time + "</td> ";
+                                        cols += "<td> " + tempdiff + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".alarm_details").append(newRow);
+                                        j++;
+                                    }
+
+                                    $('#datatable-default_alarm').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+
+
+                                    });
+
+                                }
+
+                                else {
+
+                                    $(".alarm_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+
+                    }
+
+                }
+                else {
+
+
+                    var myData = {
+                        "QueryType": "Get_Machinealarm",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Machine_Alarm").show();
+
+                            $(".alarm_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_alarm").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_alarm").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_alarm')) {
+                                $('#datatable-default_alarm').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_alarm')) {
+                                $('#datatable-default_alarm').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var startdate = new Date(response.data.Table[i].Start_Time)
+                                    var enddate = new Date(response.data.Table[i].End_Time)
+                                    var tempdiff = (enddate.getTime() - startdate.getTime()) / 1000;
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    //cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift_ID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Alarm_Description + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Start_Time + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].End_Time + "</td> ";
+                                    cols += "<td> " + tempdiff + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".alarm_details").append(newRow);
+                                    j++;
+                                }
+
+                                $('#datatable-default_alarm').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+
+
+                                });
+
+                            }
+
+                            else {
+
+                                $(".alarm_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+
+                }
+
+            }
+            else if (Report_name == "7") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+
+                    else {
+                        var myData = {
+                            "QueryType": "Get_Machineloss",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#machine_loss").show();
+
+                                $(".loss_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_loss").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_loss").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_loss')) {
+                                    $('#datatable-default_loss').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_loss')) {
+                                    $('#datatable-default_loss').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+
+                                        var startdate = new Date(response.data.Table[i].Start_Time)
+                                        var enddate = new Date(response.data.Table[i].End_Time)
+                                        var tempdiff = (enddate.getTime() - startdate.getTime()) / 1000;
+
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        //cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift_ID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].loss_Description + "</td> ";
+                                        //cols += "<td> " + response.data.Table[i].Reason + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Start_Time + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].End_Time + "</td> ";
+                                        cols += "<td> " + tempdiff + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".loss_details").append(newRow);
+                                        j++;
+                                    }
+                                    $('#datatable-default_loss').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+                                    });
+
+                                }
+
+                                else {
+
+                                    $(".loss_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+
+                    }
+                }
+                else {
+
+                    var myData = {
+                        "QueryType": "Get_Machineloss",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#machine_loss").show();
+
+                            $(".loss_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_loss").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_loss").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_loss')) {
+                                $('#datatable-default_loss').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_loss')) {
+                                $('#datatable-default_loss').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+
+                                    var startdate = new Date(response.data.Table[i].Start_Time)
+                                    var enddate = new Date(response.data.Table[i].End_Time)
+                                    var tempdiff = (enddate.getTime() - startdate.getTime()) / 1000;
+
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    //cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift_ID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].loss_Description + "</td> ";
+                                    //cols += "<td> " + response.data.Table[i].Reason + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Start_Time + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].End_Time + "</td> ";
+                                    cols += "<td> " + tempdiff + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".loss_details").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable-default_loss').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+
+
+                                });
+
+                            }
+
+                            else {
+
+                                $(".loss_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+
+                    /* }*/
+                }
+
+            }
+            else if (Report_name == "8") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == 'Custom') {
+
+
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+
+                        var myData = {
+                            "QueryType": "Get_Diagnostics",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Diagnostics_tables").show();
+
+                                $(".Diagnostics_error").text("");
+
+                                var rowsCnt = document.getElementById("datatable-default_diag").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_diag").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_diag')) {
+                                    $('#datatable-default_diag').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_diag')) {
+                                    $('#datatable-default_diag').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+                                    var j = 1;
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Time_stamp + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Device_ID + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Device_ref + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].EventText + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".Diagnostics_details").append(newRow);
+                                        j++;
+                                    }
+                                    $('#datatable-default_diag').DataTable({
+
+                                        "responsive": true,
+                                        "autoWidth": false,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+
+
+
+                                    });
+                                }
+
+                                else {
+
+                                    $(".Diagnostics_error").text(response.msg);
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+
+
+                    }
+
+                }
+                else {
+
+                    var myData = {
+                        "QueryType": "Get_Diagnostics",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Diagnostics_tables").show();
+
+                            $(".Diagnostics_error").text("");
+
+                            var rowsCnt = document.getElementById("datatable-default_diag").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_diag").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_diag')) {
+                                $('#datatable-default_diag').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_diag')) {
+                                $('#datatable-default_diag').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                var j = 1;
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_stamp + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Device_ID + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Device_ref + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].EventText + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".Diagnostics_details").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable-default_diag').DataTable({
+
+                                    "responsive": true,
+                                    "autoWidth": false,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+
+
+
+                                });
+                            }
+
+                            else {
+
+                                $(".Diagnostics_error").text(response.msg);
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+
+
+                    /*        }*/
+
+
+                }
+
+
+
+            }
+            else if (Report_name == "9") {
+
+                var start = $('#start').val();
+                var end = $('#end').val();
+                if (Duration == "0") {
+                    swal({
+                        icon: "error",
+                        title: "Please select the duration..",
+                        button: true,
+                        timer: 4500
+                    })
+                }
+                else if (Duration == "Custom") {
+
+                    if (start == '' || end == '') {
+                        swal({
+                            icon: "error",
+                            title: "Please Provide Dates correctly...",
+                            button: false,
+                            timer: 4500
+                        })
+                    }
+                    else {
+                        var myData = {
+                            "QueryType": "Get_Hourly",
+                            "Parameter": '@Session["CompanyCode"]',
+                            "Parameter1": '@Session["PlantCode"]',
+                            "Parameter2": '@Session["LineCode"]',
+                            "Parameter3": data_Limit,
+                            "Parameter4": Machine,
+                            "fromdate": start,
+                            "todate": end,
+                            "duration": Duration
+                        };
+
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: URL + 'api/RawTable/Get_RawTable_datas',
+                            data: myData,
+                            headers: {
+                                Authorization: 'Bearer ' + user1
+                            },
+                            dataType: "json",
+                            beforeSend: function () {
+                                $('.loading').show();
+                            },
+                            complete: function () {
+                                $('.loading').hide();
+                            },
+                            success: function (response) {
+
+                                $("#Hourly_tables").show();
+
+                                $(".Hourly_error").html("");
+
+                                var rowsCnt = document.getElementById("datatable-default_Hourly").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                                if (rowsCnt > 0) {
+                                    for (var i = 0; i < rowsCnt; i++) {
+                                        document.getElementById("datatable-default_Hourly").deleteRow(1);
+                                    }
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_Hourly')) {
+                                    $('#datatable-default_Hourly').DataTable().clear();
+                                }
+
+                                if ($.fn.DataTable.isDataTable('#datatable-default_Hourly')) {
+                                    $('#datatable-default_Hourly').DataTable().destroy();
+                                }
+
+                                if (response.status != "Error") {
+
+                                    $("#button").show();
+
+                                    var j = 1;
+
+                                    for (var i = 0; i < response.data.Table.length; i++) {
+                                        var newRow = $("<tr>");
+                                        var cols = '';
+                                        cols += "<td> " + j + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Shift + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Batch + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].HourNumber + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Hr_Start + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Hr_End + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].VariantName + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Operator + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].OK_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].NOK_Parts + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].A + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].P + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].Q + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].OEE + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].uptime_min + "/" + response.data.Table[i].uptime_per + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].downtime_min + "/" + response.data.Table[i].downtime_per + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].losstime_min + "/" + response.data.Table[i].losstime_per + "</td> ";
+                                        cols += "<td> " + response.data.Table[i].breaktime_min + "/" + response.data.Table[i].breaktime_per + "</td> ";
+                                        cols += "</tr>";
+                                        newRow.append(cols);
+                                        $(".Hourly_details").append(newRow);
+                                        j++;
+                                    }
+                                    $('#datatable-default_Hourly').DataTable({
+                                        "autoWidth": false,
+                                        "scrollX": true,
+                                        "scrollCollapse": true,
+                                        dom: 'Bfrtip',
+                                        buttons: [
+                                            'csv', 'excel'
+                                        ]
+                                    });
+                                }
+
+                                else {
+
+                                    $(".Hourly_error").text(response.msg);
+                                    $("#button").hide();
+
+
+                                }
+                            },
+                            error: function (response) {
+                                if (response.status == "401") {
+                                    swal({
+                                        icon: "warning",
+                                        title: "Session Expired",
+                                        button: true,
+                                        closeModal: false
+                                    })
+                                    window.location = R_url;
+                                }
+                                else {
+                                    swal({
+                                        icon: "warning",
+                                        title: response.responseText,
+                                        button: true,
+                                        closeModal: false
+                                    })
+
+                                }
+                            }
+                        });
+                    }
+
+                }
+                else {
+
+                    var myData = {
+                        "QueryType": "Get_Hourly",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": Machine,
+                        "fromdate": start,
+                        "todate": end,
+                        "duration": Duration
+                    };
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+                            $("#Hourly_tables").show();
+
+                            $(".Hourly_error").html("");
+
+                            var rowsCnt = document.getElementById("datatable-default_Hourly").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_Hourly").deleteRow(1);
+                                }
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_Hourly')) {
+                                $('#datatable-default_Hourly').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_Hourly')) {
+                                $('#datatable-default_Hourly').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+
+                                $("#button").show();
+
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Batch + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].HourNumber + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Hr_Start + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Hr_End + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].VariantName + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Operator + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OK_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].NOK_Parts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].A + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].P + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Q + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OEE + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].uptime_min + "/" + response.data.Table[i].uptime_per + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].downtime_min + "/" + response.data.Table[i].downtime_per + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].losstime_min + "/" + response.data.Table[i].losstime_per + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].breaktime_min + "/" + response.data.Table[i].breaktime_per + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".Hourly_details").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable-default_Hourly').DataTable({
+                                    "autoWidth": false,
+                                    "scrollX": true,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+                                });
+                            }
+
+                            else {
+
+                                $(".Hourly_error").text(response.msg);
+                                $("#button").hide();
+
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+                    /* }*/
+                }
+            }
+            else if (Report_name == "10") {
+
+                var FromDate = $("#FromDate").val();
+                var ToDate = $("#ToDate").val();
+                var From_time = $("#From_time").val();
+                var To_time = $("#To_time").val();
+
+                if (FromDate == '' || ToDate == '') {
+                    swal({
+                        icon: "error",
+                        title: "Please select date...",
+                        button: false,
+                        timer: 4500
+                    })
+                }
+
+                else if (From_time == '' || To_time == '') {
+                    swal({
+                        icon: "error",
+                        title: "Please select Time...",
+                        button: false,
+                        timer: 4500
+                    })
+                }
+                else {
+                    var myData = {
+                        "QueryType": "Get_cycle_rawdata",
+                        "Parameter": '@Session["CompanyCode"]',
+                        "Parameter1": '@Session["PlantCode"]',
+                        "Parameter2": '@Session["LineCode"]',
+                        "Parameter3": data_Limit,
+                        "Parameter4": FromDate,
+                        "Parameter5": ToDate,
+                        "Parameter6": From_time,
+                        "Parameter7": To_time,
+                        "Parameter8": Machine,
+                    };
+
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/Get_RawTable_datas',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#Cycletime_Raw_tables").show();
+
+                            $(".cycletime_raw_error").html("");
+
+                            var rowsCnt = document.getElementById("datatable_cycle").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable_cycle").deleteRow(1);
+                                }
+                            }
+
+
+                            if ($.fn.DataTable.isDataTable('#datatable_cycle')) {
+                                $('#datatable_cycle').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable_cycle')) {
+                                $('#datatable_cycle').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                $("#button1").show();
+
+                                var j = 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].MachineCode + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].LineCode + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Operations + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Operation_time + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Actual_cycletime + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].OKParts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].NOKParts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].TotalParts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Type + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Time_Stamp + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".cycletime_raw_details").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable_cycle').DataTable({
+                                    "autoWidth": false,
+                                    "scrollX": true,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+                                });
+                            }
+
+                            else {
+
+                                $(".cycletime_raw_error").text(response.msg);
+                                $("#button1").hide();
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+                }
+            }
+
+
+               else if (Report_name == "11") {
+
+                    var myData = {
+                      /*  "QueryType": "Get_oknok_basedon_Machinestatus",*/
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                        "line": '@Session["LineCode"]',
+                        "Machine": Machine
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: URL + 'api/RawTable/GetMachine_statuswisedata',
+                        data: myData,
+                        headers: {
+                            Authorization: 'Bearer ' + user1
+                        },
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('.loading').show();
+                        },
+                        complete: function () {
+                            $('.loading').hide();
+                        },
+                        success: function (response) {
+
+                            $("#data_Machinestatus").show();
+
+                            $(".Machine_status_error").html("");
+
+                            var rowsCnt = document.getElementById("datatable-default_MS").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                            if (rowsCnt > 0) {
+                                for (var i = 0; i < rowsCnt; i++) {
+                                    document.getElementById("datatable-default_MS").deleteRow(1);
+                                }
+                            }
+
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_MS')) {
+                                $('#datatable_cycle').DataTable().clear();
+                            }
+
+                            if ($.fn.DataTable.isDataTable('#datatable-default_MS')) {
+                                $('#datatable-default_MS').DataTable().destroy();
+                            }
+
+                            if (response.status != "Error") {
+                                $("#button1").show();
+
+                                var j= 1;
+
+                                for (var i = 0; i < response.data.Table.length; i++) {
+                                    var newRow = $("<tr>");
+                                    var cols = '';
+                                    cols += "<td> " + j + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Shift + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Batch + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].end + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Variant + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].okparts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].nokparts + "</td> ";
+                                    cols += "<td> " + response.data.Table[i].Machine_status + "</td> ";
+                                    cols += "</tr>";
+                                    newRow.append(cols);
+                                    $(".Machine_status").append(newRow);
+                                    j++;
+                                }
+                                $('#datatable-default_MS').DataTable({
+                                    "autoWidth": false,
+                                    "scrollX": true,
+                                    "scrollCollapse": true,
+                                    dom: 'Bfrtip',
+                                    buttons: [
+                                        'csv', 'excel'
+                                    ]
+                                });
+                            }
+
+                            else {
+
+                                $(".Machine_status_error").text(response.msg);
+                                $("#button1").hide();
+
+                            }
+                        },
+                        error: function (response) {
+                            if (response.status == "401") {
+                                swal({
+                                    icon: "warning",
+                                    title: "Session Expired",
+                                    button: true,
+                                    closeModal: false
+                                })
+                                window.location = R_url;
+                            }
+                            else {
+                                swal({
+                                    icon: "warning",
+                                    title: response.responseText,
+                                    button: true,
+                                    closeModal: false
+                                })
+
+                            }
+                        }
+                    });
+                }
+
+        }
+    });
+</script>
+
+
+
+

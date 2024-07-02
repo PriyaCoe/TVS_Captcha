@@ -1,0 +1,1436 @@
+
+@{
+    ViewBag.Title = "HourlyTrackerLive";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/d3.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/assets1/datepicker_normal/jquery-ui-1.8.19.custom.css">
+<link href="~/Content/bootstrapmodel.css" rel="stylesheet" />
+<header class="page-header">
+    <h2>Hourly Tracker Live</h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            @*<li><span>Production</span></li>
+                <li><span>RealTime Dashboard</span></li>
+                <li><span>Hourly Tracker</span></li>*@
+        </ol>
+    </div>
+</header>
+@if (ViewContext.Controller.HasPermission("HourlyLive-View"))
+{
+    <div class="row andonlive" style="background-color:burlywood;color:black;align-content:center;text-align:center;">
+    </div>
+    <div id="myModal" class="modal" style="padding-top:10%">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h4>Variant Summary Details</h4>
+            </div>
+            <div class="modal-body" id="variantsummary">
+                @*<section class='panel'>
+                        <header class='panel-heading'>
+                            <h2 class='panel-title'>Variant V1</h2>
+                        </header>
+                        <div class='row'>
+                            <div class='col-md-12' style='padding-top:2%'>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-tertiary' style='float:left'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL OK Parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>1254546</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-danger' style='float:left;margin-right:2%;margin-left:3%'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL NOK Parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>1258589</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-primary'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL RW parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>9663225881</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class='col-md-12' style='padding-top:2%;position:relative '>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-tertiary' style='float:left'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL OK Parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>1254546</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class='col-md-4'>
+
+                                </div>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-primary pull-right' style='float:right'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL RW parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>9663225881</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class='col-md-12' style='padding-top:2%'>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-tertiary' style='float:left'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL OK Parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>1254546</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-danger' style='float:left;margin-right:2%;margin-left:3%'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL NOK Parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>1258589</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class='col-md-4'>
+                                    <div class='panel-body bg-primary'>
+
+                                        <div class='widget-summary widget-summary-sm'>
+
+                                            <div class='widget-summary-col widget-summary-col-icon '>
+
+                                                <div class='summary-icon'>
+
+                                                    <i class='fa fa-life-ring'></i>
+
+                                                </div>
+
+                                            </div>
+                                            <div class='widget-summary-col'>
+
+                                                <div class='summary'>
+
+                                                    <h4 class='title'>TOTAL RW parts</h4>
+                                                    <div class='info'>
+
+                                                        <strong class='amount'>9663225881</strong>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>*@
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <div id="mymodal_okparts" class="modal" style="padding-top:10%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" id="okpartsclose">&times;</span>
+                <h2>Previous Hour Details</h2>
+            </div>
+            <div id="okparts_data" style="display:none">
+                <div class="modal-body" id="okparts_content">
+                    <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default">Machine: <span id="ok_mcno"></span></button>
+                    <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default">Line: <span id="ok_Line"></span></button>
+                    <table class="table table-bordered table-striped table-condensed mb-none" id="datatable-okparts">
+                        <thead style="background-color:cadetblue;color:white;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Variant Code</th>
+                                <th>Hour</th>
+                                <th>OK Parts</th>
+                                <th>NOK Parts</th>
+                                <th>Rework Parts</th>
+                            </tr>
+                        </thead>
+                        <tbody id="okparts_details" style="width:100%;"></tbody>
+
+
+                    </table>
+                </div>
+            </div>
+            <div id="okparts_nodata" style="display: none;padding-left:40%"> <p style="color:red;font-size:1.5vw">No  Data</p></div>
+        </div>
+
+    </div>
+
+
+    <div id="mymodal_okparts1" class="modal" style="padding-top:10%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" id="okpartsclose1">&times;</span>
+                <h2>Time-Variant Details</h2>
+            </div>
+            <div id="okparts_data1" style="display:none">
+                <div class="modal-body" id="okparts_content1">
+                    <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default">Machine: <span id="ok_mcno1"></span></button>
+                    <button type="button" class="mb-xs mt-xs mr-xs btn btn-sm btn-default">Line: <span id="ok_Line1"></span></button>
+                    <table class="table table-bordered table-striped table-condensed mb-none" id="datatable-okparts1">
+                        <thead style="background-color:cadetblue;color:white;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Hour</th>
+                                <th>Shift</th>
+                                <th>Variant Code</th>
+                            </tr>
+                        </thead>
+                        <tbody id="okparts_details1" style="width:100%;"></tbody>
+
+
+                    </table>
+                </div>
+            </div>
+            <div id="okparts_nodata1" style="display: none;padding-left:40%"> <p style="color:red;font-size:1.5vw">No  Data</p></div>
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+
+@*<div class="modal-block modal-block-md" id="myModal">
+
+    </div>*@
+<style>
+    /*modal-body {
+            height:100px;
+          overflow-y: scroll;
+        }*/
+    .circle {
+        border-radius: 50%;
+        float: left;
+        display: inline-block;
+        margin-right: 2px;
+        /* text styling */
+        font-size: 12px;
+        width: 90px;
+        height: 70px;
+        padding: 10px 0;
+        color: #000;
+        border: 2px solid #fff;
+        text-align: center;
+        font-family: Arial;
+    }
+
+    .color-1 {
+        background: #DD4814;
+    }
+
+    .color-2 {
+        background: #7ff2d2;
+    }
+
+    .color-3 {
+        background: #5E2750;
+    }
+
+    .color1-box-shadow {
+        box-shadow: 0px 0px 1px 1px #DD4814
+    }
+
+    .color2-box-shadow {
+        box-shadow: 0px 0px 1px 1px #AEA79F
+    }
+
+    .color3-box-shadow {
+        box-shadow: 0px 0px 1px 1px #5E2750
+    }
+
+    .circle span {
+        color: red;
+        font-size: 12px;
+        display: block
+    }
+</style>
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    var HURL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+        function getandonlivedata() {
+            //var vars = [], hash;
+            //var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            //for (var i = 0; i < hashes.length; i++) {
+            //    hash = hashes[i].split('?');
+            //    vars.push(hash[0]);
+            //    vars[hash[0]] = hash[1];
+            //}
+            var myData = {
+                "CompanyCode": '@Session["CompanyCode"]',
+                "PlantCode": '@Session["PlantCode"]',
+                "Linecode" : '@Session["LineCode"]',
+            };
+            var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+            var linecode = '@Session["LineCode"]';
+            $.ajax({
+                type: 'Post',
+                url: URL + 'api/OEE/check_holiday',
+                data: myData,
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+
+                dataType: 'json'
+            }).success(function (response) {
+
+                if (response.data.length == 0)
+                {
+                    $.ajax({
+                type: 'POST',
+                url: URL + 'api/Firstpassyield/GetHourlylivedata',
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+                data: myData,
+                dataType: 'json'
+                    }).success(function (response) {
+                      
+                        if (response.data.Table.length != 0 && new Date(response.data.Table[0].LastUpdate).toDateString() == new Date().toDateString()) {
+                            //if (new Date(response.data.Table[0].LastUpdate).toDateString() != new Date().toDateString()) {
+                            // alert('yes')  
+                            //}
+                            //else {
+                                
+                            //}
+                    var j = 1;
+                    var cols = '';
+                    var jols = '';
+                    var sc = '';
+                    var vc;
+                    var nxthr = response.data.Table[0].Hour + 1;
+                    var prevhr = response.data.Table[0].Hour - 1;
+                    var machine = response.data.Table[0].Machine_code;
+                    //alert(machine);
+                    //var count = 0;
+
+                    //for (var i = 0; i < response.data.Table.length; i++) {
+                    //    count = (response.data.Table[i].Ok_Parts) + (response.data.Table[i].NOK_Parts) + (response.data.Table[i].Rework_Parts);
+
+                    //}
+
+
+                    cols += "<section class='panel'>";
+                     cols += "    <div class='col-md-3 col-xl-3'>";
+                    cols += "        <div class='panel-body bg-dark' style='float:left;'>";
+                    cols += "            <div class='widget-summary widget-summary-sm'>";
+                    cols += "                <div class='widget-summary-col'>";
+                    cols += "                    <div class='summary'>";
+                    cols += "                        <h4 class='title'>Asset:  "  + response.data.Table[0].AssetName + "_" + linecode + " </h4>";
+                   // cols += "                        <div class='info'>";
+                   // cols += "                            <strong class=''>" + response.data.Table[0].TotalOkParts + "</strong>";
+                   // cols += "                        </div>";
+                    cols += "                    </div>";
+                    cols += "                </div>";
+                    cols += "            </div>";
+                    cols += "        </div>";
+                    cols += "    </div>";
+                    cols += "    <div class='col-md-3 col-xl-3'>";
+                    cols += "        <div class='panel-body bg-dark' style='float:left;'>";
+                    cols += "            <div class='widget-summary widget-summary-sm'>";
+                    cols += "                <div class='widget-summary-col'>";
+                    cols += "                    <div class='summary'>";
+                    cols += "                        <h4 class='title'>Total Parts: " + response.data.Table[0].TotalOkParts + " </h4>";
+                   // cols += "                        <div class='info'>";
+                   // cols += "                            <strong class=''>" + response.data.Table[0].TotalOkParts + "</strong>";
+                   // cols += "                        </div>";
+                    cols += "                    </div>";
+                    cols += "                </div>";
+                    cols += "            </div>";
+                    cols += "        </div>";
+                    cols += "    </div>";
+                    cols += "    <div class='col-md-3 col-xl-3'>";
+                    cols += "        <div class='panel-body bg-dark' style='float:left;margin-right:2%;margin-left:10%;margin-bottom:10%'>";
+                    cols += "            <div class='widget-summary widget-summary-sm'>";
+                    cols += "                <div class='widget-summary-col'>";
+                    cols += "                    <div class='summary'>";
+                    cols += "                        <h4 class='title'>Current Hour: " + response.data.Table[0].Hour + ":00  - " + nxthr + ":00</h4>";
+                   // cols += "                        <div class='info'>";
+                   // cols += "                            <strong class='amount'>" + response.data.Table[0].Hour + plantdigitizationportal":00  - " + nxthr + ":00</strong>";
+                   // cols += "                        </div>";
+                    cols += "                    </div>";
+                    cols += "                </div>";
+                    cols += "            </div>";
+                    cols += "        </div>";
+                    cols += "    </div>";
+                    cols += "    <div class='col-md-2' style='text-align:'center'>";
+                    //cols += "        <h4>VARIANT CHANGE</h4>";
+                    cols += "       <button class='btn bg-dark' onclick='variantsummary(\"" + response.data.Table[0].Machine_code + "\")' style='background-color:#787573;color:white;'>Summary Details</button>";
+                    //cols += "        <a class='accordion-toggle' data-toggle='collapse' onclick='variantsummary()' aria-expanded='true' style='float:left;padding-left:17.5%'>";
+                    //cols += "            Yes <i class='fa fa-check'></i>";
+                    //cols += "       <br />";
+
+
+                    //cols += "        <code>Click for summary details</code>";
+
+                    cols += "    </div>";
+                    //cols += "    <div class='col-md-2' style='text-align:'center'>";
+                    ////cols += "        <h4>VARIANT CHANGE</h4>";
+                    //cols += "       <button class='btn' onclick='previous_hour(\"" + response.data.Table[0].Machine_code + "\"," + response.data.Table[0].Hour + ")' style='background-color:#787573;color:white;'>Previous Hour Details</button>";
+                    ////cols += "        <a class='accordion-toggle' data-toggle='collapse' onclick='variantsummary()' aria-expanded='true' style='float:left;padding-left:17.5%'>";
+                    ////cols += "            Yes <i class='fa fa-check'></i>";
+                    ////cols += "       <br />";
+
+
+                    ////cols += "        <code>Click for summary details</code>";
+
+                    //cols += "    </div>";
+                    // cols += "    <div class='col-md-2' style='text-align:'center'>";
+                    ////cols += "        <h4>VARIANT CHANGE</h4>";
+                    //cols += "       <button class='btn bg-dark' onclick='timevariant(\"" + response.data.Table[0].Machine_code + "\")' style='background-color:#787573;color:white;'>Time-Variant</button>";
+                    ////cols += "        <a class='accordion-toggle' data-toggle='collapse' onclick='variantsummary()' aria-expanded='true' style='float:left;padding-left:17.5%'>";
+                    ////cols += "            Yes <i class='fa fa-check'></i>";
+                    ////cols += "       <br />";
+
+
+                    ////cols += "        <code>Click for summary details</code>";
+
+                    //cols += "    </div>";
+                    cols += "</section>";
+                    for (var i = 0; i < response.data.Table.length; i++) {
+
+
+                        cols += "<div class='col-md-12 col-lg-12 col-xl-6'>";
+                        cols += "    <section class='panel panel-horizontal'>";
+                        cols += "        <div class='panel-body p-sm'>";
+                        cols += "            <div class='col-sm-12 panel panel-featured-bottom panel-featured-primary bg-white'>";
+                        cols += "                <div class='col-sm-3' style='margin-bottom:3%'>";
+                        cols += "                    <div class='circle text color-2' style='float:left'> Shift <span>" + response.data.Table[i].Shift_ID + "</span></div><img src='../Images/giphy.gif' style='width:50px;height:70px;float:left;padding-bottom:2%' />";
+                        cols += "                </div>";
+                        cols += "                <div class='col-sm-6' style='text-align:center;height:auto;width:auto'>";
+                        cols += "                    <button type='button' class='mb-xs mt-xs mr-xs btn btn-default btn-warning pull-left' style='text-align:center;height:inherit;width:inherit;background-color:teal;border-style:solid;border-width:thin;border-color:black;'>";
+                        cols += "                        <i class='fa fa-clock-o'>";
+                        cols += "                        </i> Start Time : " + response.data.Table[i].StartTime + " <span id='start_time'></span>";
+                        cols += "                    </button><br/>";
+                        cols += "                    <button type='button' class='mb-xs mt-xs mr-xs btn btn-default btn-warning pull-left' style='text-align:center;height:inherit;width:inherit;background-color:teal;border-style:solid;border-width:thin;border-color:black;'>";
+                        cols += "                        <i class='fa fa-clock-o'>";
+                        cols += "                        </i> End Time   : " + response.data.Table[i].LastUpdate + " <span id='end_time'></span>";
+                        cols += "                    </button>";
+                        cols += "                </div>";
+                        cols += "                <div class='col-sm-3' style='margin-bottom:3%'>";
+                        cols += "                    <img src='../Images/giphy.gif' style='width:50px;height:70px;float:right;padding-bottom:2%' /><div class='circle text color-2' style='float:right;' title='"+response.data.Table[i].VariantName+"'> Variant <span>" + response.data.Table[i].Variant_code + "</span></div>";
+                        cols += "                </div>";
+                        cols += "            </div>";
+                        cols += "                <div class='row' style='margin-bottom:3%;padding-left:2%;'>";
+                        cols += "       <button class='btn' onclick='previous_hour(\"" + response.data.Table[0].Machine_code + "\"," + response.data.Table[0].Hour + ",\"" + response.data.Table[i].Shift_ID + "\")' style='background-color:#787573;color:white;'>Previous Hour Details</button>";
+                        cols += "       <button class='btn bg-dark' onclick='timevariant(\"" + response.data.Table[0].Machine_code + "\"," + response.data.Table[0].Hour + ",\"" + response.data.Table[i].Shift_ID + "\")' style='background-color:#787573;color:white;'>Time-Variant</button>";
+                        cols += "            </div>";
+                        cols += "            <div class='row'>";
+                        cols += "                <div class='col-md-7 col-xl-3' style='/*padding-top:3%;*/'>";
+                        cols += "                    <div class='panel-body bg-success' style='float:left'>";
+                        cols += "                        <div class='widget-summary widget-summary-sm'>";
+                        cols += "                            <div class='widget-summary-col widget-summary-col-icon '>";
+                        cols += "                                <div class='summary-icon'>";
+                        cols += "                                    <i class='fa fa-life-ring'></i>";
+                        cols += "                                </div>";
+                        cols += "                            </div>";
+                        cols += "                            <div class='widget-summary-col'>";
+                        cols += "                                <div class='summary'>";
+                        cols += "                                    <h4 class='title'>OK Parts</h4>";
+                        cols += "                                    <div class='info'>";
+                        cols += "                                        <strong class='amount'>" + response.data.Table[i].Ok_Parts + "</strong>";
+                        cols += "                                    </div>";
+                        cols += "                                </div>";
+                        cols += "                            </div>";
+                        cols += "                        </div>";
+                        cols += "                    </div>";
+                        cols += "                    <div class='panel-body bg-danger' style='float:left;margin-right:2%;margin-left:3%'>";
+                        cols += "                        <div class='widget-summary widget-summary-sm'>";
+                        cols += "                            <div class='widget-summary-col widget-summary-col-icon '>";
+                        cols += "                                <div class='summary-icon'>";
+                        cols += "                                    <i class='fa fa-life-ring'></i>";
+                        cols += "                                </div>";
+                        cols += "                            </div>";
+                        cols += "                            <div class='widget-summary-col'>";
+                        cols += "                                <div class='summary'>";
+                        cols += "                                    <h4 class='title'>NOK Parts</h4>";
+                        cols += "                                    <div class='info'>";
+                        cols += "                                        <strong class='amount'>" + response.data.Table[i].NOK_Parts + "</strong>";
+                        cols += "                                    </div>";
+                        cols += "                                </div>";
+                        cols += "                            </div>";
+                        cols += "                        </div>";
+                        cols += "                    </div>";
+                        cols += "                    <div class='panel-body bg-primary'>";
+                        cols += "                        <div class='widget-summary widget-summary-sm'>";
+                        cols += "                            <div class='widget-summary-col widget-summary-col-icon '>";
+                        cols += "                                <div class='summary-icon'>";
+                        cols += "                                    <i class='fa fa-life-ring'></i>";
+                        cols += "                                </div>";
+                        cols += "                            </div>";
+                        cols += "                            <div class='widget-summary-col'>";
+                        cols += "                                <div class='summary'>";
+                        cols += "                                    <h4 class='title'>RW parts</h4>";
+                        cols += "                                    <div class='info'>";
+                        cols += "                                        <strong class='amount'>" + response.data.Table[i].Rework_Parts + "</strong>";
+                        cols += "                                    </div>";
+                        cols += "                                </div>";
+                        cols += "                            </div>";
+                        cols += "                        </div>";
+                        cols += "                    </div>";
+                        cols += "                </div>";
+                        cols += "                <div class='col-md-5' style='/*padding-top:2%*/'>";
+                        cols += "                    <div class='table-responsive table-bordered'>";
+                        cols += "                        <table class='table table-striped mb-none'>";
+                        cols += "                            <thead style='background-color:#f5460c;color:white'>";
+                        cols += "                                <tr>";
+                        cols += "                                    <th>Machine Id</th>";
+                        cols += "                                    <th>Operator ID</th>";
+                        cols += "                                    <th>Operator Name</th>";
+                        cols += "                                </tr>";
+                        cols += "                            </thead>";
+                        cols += "                            <tbody class='opdetails'>";
+                        cols += "                            </tbody>";
+                        cols += "                        </table>";
+                        cols += "                    </div>";
+                        cols += "                </div>";
+                        cols += "            </div>";
+                        cols += "        </div>";
+                        cols += "    </section>";
+                        cols += "</div>";
+                    }
+                    $(".andonlive").html(cols);
+                    $('.updated_time').text(new Date().toLocaleString());
+                    $('.shift').text(response.data.Table[0].Shift_ID);
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                    for (var i = 0; i < response.data.Table1.length; i++) {
+                        var newRow = $("<tr>");
+                        var jols = '';
+                        jols += "<td> " + j + "</td> ";
+                        jols += "<td> " + response.data.Table1[i].OperatorID + "</td> ";
+                        jols += "<td> " + response.data.Table1[i].OperatorName + "</td> ";
+                        jols += "</tr>";
+                        newRow.append(jols);
+                        $(".opdetails").append(newRow);
+                        j++;
+                    }
+                }
+                else {
+                    $(".andonlive").empty();
+                    $(".andonlive").html('No Data Available');
+                }
+
+
+            }).error(function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            });
+                }
+                else
+                {
+                     $(".andonlive").empty();
+                    $(".andonlive").html(response.data[0].holiday_name);
+                }
+
+             });
+            //}).error(function (response) {
+            //    swal({
+            //        icon: "warning",
+            //        title: "Session Timeout",
+            //        button: true,
+            //        closeModal: false
+            //    })
+            //    window.location = R_url;
+            //});
+            setTimeout(getandonlivedata, 10000);
+    }
+
+$(document).ready(function () {
+        getandonlivedata();
+});
+    function variantsummary(machine) {
+        //alert(machine)
+                // var vars = [], hash;
+                //    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                //for (var i = 0; i < hashes.length; i++) {
+                //    hash = hashes[i].split('?');
+                //    vars.push(hash[0]);
+                //    vars[hash[0]] = hash[1];
+                //}
+                var today = new Date();
+
+                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                var starttime = today.getHours() + ":00:00.00";
+                var st = date + ' ' + starttime;
+                var dateTime = date + ' ' + time;
+                 //var st = '2020-07-03 10:00:00.000';
+                 //var dateTime = '2020-07-03 10:40:00.000';
+                //var ft = response.data.Table[0].StartTime;
+                var cols = '';
+                var myData = {
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                         "linecode": '@Session["LineCode"]',
+                         "Fromtime": st,
+                    "Totime": dateTime,
+                    "Machinecode": machine,
+         };
+         //alert(dateTime)
+          var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+         var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    var HURL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+
+            //$.ajax({
+            //    type: 'Get',
+            //    url: HURL + 'api/UserSettings/GetEmployee',
+            //    headers: {
+            //        Authorization: 'Bearer ' + user1
+            //    },
+            //    dataType: 'json'
+            //}).success(function (response) {
+         $.ajax({
+             type: 'POST',
+             url: HURL + 'api/Firstpassyield/GetHourlysummarydata',
+             data: myData,
+               headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+             dataType: 'json'
+         }).success(function (response) {
+             if (response.status == "Success") {
+                 //alert(response.status)
+                 //if (response.data.Table.length != 0) {
+                 for (var i = 0; i < response.data.Table.length; i++) {
+                     //alert('inside success')
+                     cols += "<section class='panel'>";
+                     cols += "                <header class='panel-heading'>";
+                     cols += "                    <h2 class='panel-title'>Variant : " + response.data.Table[i].Variant_Code + "</h2>";
+                     cols += "                </header>";
+                     cols += "                <div class='row'>";
+                     cols += "                    <div class='col-md-12' style='padding-top:2%'>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-success' style='float:left'>";
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+                     cols += "                                        <div class='summary-icon'>";
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+                     cols += "                                        <div class='summary'>";
+                     cols += "                                            <h4 class='title'>TOTAL OK Parts</h4>";
+                     cols += "                                            <div class='info'>";
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].OK_Parts + "</strong>";
+                     cols += "                                            </div>";
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                </div>";
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-danger' style='float:left;margin-right:2%;margin-left:3%'>";
+
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+
+                     cols += "                                        <div class='summary-icon'>";
+
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+
+                     cols += "                                        <div class='summary'>";
+
+                     cols += "                                            <h4 class='title'>TOTAL NOK Parts</h4>";
+                     cols += "                                            <div class='info'>";
+
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].NOK_Parts + "</strong>";
+
+                     cols += "                                            </div>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+
+                     cols += "                                </div>";
+
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-primary'>";
+
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+
+                     cols += "                                        <div class='summary-icon'>";
+
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+
+                     cols += "                                        <div class='summary'>";
+
+                     cols += "                                            <h4 class='title'>TOTAL RW parts</h4>";
+                     cols += "                                            <div class='info'>";
+
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].Rework_Parts + "</strong>";
+
+                     cols += "                                            </div>";
+
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                </div>";
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                    </div>";
+                     cols += "                </div>";
+                     cols += "                <div class='row'>";
+                     cols += "                    <div class='col-md-12' style='padding-top:2%;position:relative '>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                        </div>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-info' style='float:left;margin-right:2%;margin-left:3%'>";
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+                     cols += "                                        <div class='summary-icon'>";
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+                     cols += "                                        <div class='summary'>";
+                     cols += "                                            <h4 class='title'>OEE</h4>";
+                     cols += "                                            <div class='info'>";
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].OEE + "</strong>";
+                     cols += "                                            </div>";
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                </div>";
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                        </div>";
+                     //cols += "                        <div class='col-md-4'>";
+                     //cols += "                            <div class='panel-body bg-info pull-right' style='float:right'>";
+
+                     //cols += "                                <div class='widget-summary widget-summary-sm'>";
+
+                     //cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+
+                     //cols += "                                        <div class='summary-icon'>";
+
+                     //cols += "                                            <i class='fa fa-life-ring'></i>";
+
+                     //cols += "                                        </div>";
+
+                     //cols += "                                    </div>";
+                     //cols += "                                    <div class='widget-summary-col'>";
+
+                     //cols += "                                        <div class='summary'>";
+
+                     //cols += "                                            <h4 class='title'>OEE</h4>";
+                     //cols += "                                            <div class='info'>";
+
+                     //cols += "                                                <strong class='amount'>" + response.data.Table[i].OEE + "</strong>";
+
+                     //cols += "                                            </div>";
+
+                     //cols += "                                        </div>";
+
+                     //cols += "                                    </div>";
+
+                     //cols += "                                </div>";
+
+                     //cols += "                            </div>";
+                     //cols += "                        </div>";
+                     cols += "                    </div>";
+                     cols += "                </div>";
+                     cols += "                <div class='row'>";
+                     cols += "                    <div class='col-md-12' style='padding-top:2%'>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-secondary' style='float:left'>";
+
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+
+                     cols += "                                        <div class='summary-icon'>";
+
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+
+                     cols += "                                        <div class='summary'>";
+
+                     cols += "                                            <h4 class='title'>Availability</h4>";
+                     cols += "                                            <div class='info'>";
+
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].Availability + "</strong>";
+
+                     cols += "                                            </div>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+
+                     cols += "                                </div>";
+
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-secondary' style='float:left;margin-right:2%;margin-left:3%'>";
+
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+
+                     cols += "                                        <div class='summary-icon'>";
+
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+
+                     cols += "                                        <div class='summary'>";
+
+                     cols += "                                            <h4 class='title'>Performance</h4>";
+                     cols += "                                            <div class='info'>";
+
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].Performance + "</strong>";
+
+                     cols += "                                            </div>";
+
+                     cols += "                                        </div>";
+
+                     cols += "                                    </div>";
+
+                     cols += "                                </div>";
+
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                        <div class='col-md-4'>";
+                     cols += "                            <div class='panel-body bg-secondary'>";
+
+                     cols += "                                <div class='widget-summary widget-summary-sm'>";
+
+                     cols += "                                    <div class='widget-summary-col widget-summary-col-icon '>";
+
+                     cols += "                                        <div class='summary-icon'>";
+
+                     cols += "                                            <i class='fa fa-life-ring'></i>";
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                    <div class='widget-summary-col'>";
+                     cols += "                                        <div class='summary'>";
+                     cols += "                                            <h4 class='title'>Quality</h4>";
+                     cols += "                                            <div class='info'>";
+                     cols += "                                                <strong class='amount'>" + response.data.Table[i].Quality + "</strong>";
+                     cols += "                                            </div>";
+                     cols += "                                        </div>";
+                     cols += "                                    </div>";
+                     cols += "                                </div>";
+                     cols += "                            </div>";
+                     cols += "                        </div>";
+                     cols += "                    </div>";
+                     cols += "                </div>";
+                     cols += "            </section>";
+                 }
+                 $("#variantsummary").html(cols);
+                 $("#myModal").modal('show');
+             }
+             else {
+                 //alert(response.status)
+                 cols += "<h4>No data available </h4>";
+                 $("#variantsummary").html(cols);
+                 $("#myModal").modal('show');
+             }
+
+
+         }).error(function (response) {
+            // alert(response.status)
+             cols += "<h4>No data available </h4>";
+             $("#variantsummary").html(cols);
+             $("#myModal").modal('show');
+         }).error(function (response) {
+             if (response.status == "401") {
+                 swal({
+                     icon: "warning",
+                     title: "Session Timeout",
+                     button: true,
+                     closeModal: false
+                 })
+                 window.location = R_url;
+             }
+             else {
+                 swal({
+                     icon: "warning",
+                     title: response.responseText,
+                     button: true,
+                     closeModal: false
+                 })
+
+             }
+            });
+    }
+
+    function previous_hour(machine,prehr,shift) {
+
+                // var vars = [], hash;
+                //    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                //for (var i = 0; i < hashes.length; i++) {
+                //    hash = hashes[i].split('?');
+                //    vars.push(hash[0]);
+                //    vars[hash[0]] = hash[1];
+                //}
+
+
+                var today = new Date();
+                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+                var starttime = today.getHours() + ":00:00.00";
+                var st = date + ' ' + starttime;
+                var dateTime = date + ' ' + prehr +":00:00.00";
+                 //var st = '2020-07-03 10:00:00.000';
+                 //var dateTime = '2020-07-03 10:40:00.000';
+                //var ft = response.data.Table[0].StartTime;
+                var cols = '';
+                var myData = {
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                         "linecode": '@Session["LineCode"]',
+                         "Fromtime": st,
+                         "Totime": dateTime,
+                    "Machinecode": machine,
+                    "Shift":shift
+         };
+         //alert(dateTime)
+          var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+         var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    var HURL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+
+            //$.ajax({
+            //    type: 'Get',
+            //    url: HURL + 'api/UserSettings/GetEmployee',
+            //    headers: {
+            //        Authorization: 'Bearer ' + user1
+            //    },
+            //    dataType: 'json'
+            //}).success(function (response) {
+         $.ajax({
+             type: 'POST',
+             url: HURL + 'api/Firstpassyield/GetPrevHourlysummarydata',
+             data: myData,
+               headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+             dataType: 'json'
+         }).success(function (response) {
+
+            if (response.data.length != 0) {
+                document.getElementById("okparts_data").style.display = "block";
+                document.getElementById("okparts_nodata").style.display = "none";
+                $('#ok_mcno').text(machine);
+                $('#ok_Line').text('@Session["LineCode"]');
+
+
+                if ($.fn.DataTable.isDataTable('#datatable-okparts')) {
+                    $('#datatable-okparts').DataTable().clear().draw();
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-okparts')) {
+                    $('#datatable-okparts').DataTable().destroy();
+                }
+
+                for (var i = 0; i < response.data.Table.length; i++) {
+
+                  // var num=i+1
+                    var newRow = $("<tr>");
+                    var cols = '';
+                    var sc = '';
+                    //var cols = $("<tr>");
+                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                    cols += "<td> " + response.data.Table[i].Variant_code + "</td> ";
+                    cols += "<td> " + response.data.Table[i].Hour + "</td> ";
+                    cols += "<td> " + response.data.Table[i].OK_Parts + "</td> ";
+                    cols += "<td> " + response.data.Table[i].NOK_Parts + "</td> ";
+                    cols += "<td> " + response.data.Table[i].Rework_Parts + "</td> ";
+
+
+
+                    cols += "</tr>"
+                    //cols += "</tr>";
+                    newRow.append(cols);
+                    $("#okparts_details").append(newRow);
+
+                    //okparts_datatable.row.add([num, response.data.Table[i].time_stamp, response.data.Table[i].count, response.data.Table[i]["Produced Qty"]]).draw();
+                }
+
+
+
+                var okparts_table1=$('#datatable-okparts').DataTable({
+
+                    "responsive": true,
+                    "autoWidth": false,
+                    "searching": false,
+                    dom: 'frtip',
+
+                });
+                    $("#mymodal_okparts").modal('show');
+            }
+
+
+            else {
+                //$(".custom_pre_error").text(response.msg);
+                $("#okparts_details").empty();
+                    $("#mymodal_okparts").modal('show');
+                document.getElementById("okparts_data").style.display = "none";
+                document.getElementById("okparts_nodata").style.display = "block";
+            }
+
+
+         }).error(function (response) {
+            // alert(response.status)
+             cols += "<h4>No data available </h4>";
+             //$("#variantsummary").html(cols);
+             $("#mymodal_okparts").modal('show');
+         }).error(function (response) {
+             if (response.status == "401") {
+                 swal({
+                     icon: "warning",
+                     title: "Session Timeout",
+                     button: true,
+                     closeModal: false
+                 })
+                 window.location = R_url;
+             }
+             else {
+                 swal({
+                     icon: "warning",
+                     title: response.responseText,
+                     button: true,
+                     closeModal: false
+                 })
+
+             }
+            });
+    }
+
+    function timevariant(machine,prehr,shift) {
+
+                // var vars = [], hash;
+                //    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                //for (var i = 0; i < hashes.length; i++) {
+                //    hash = hashes[i].split('?');
+                //    vars.push(hash[0]);
+                //    vars[hash[0]] = hash[1];
+                //}
+
+
+                var today = new Date();
+                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+                var starttime = today.getHours() + ":00:00.00";
+                var st = date + ' ' + starttime;
+                var dateTime = date + ' ' + prehr +":00:00.00";
+                 //var st = '2020-07-03 10:00:00.000';
+                 //var dateTime = '2020-07-03 10:40:00.000';
+                //var ft = response.data.Table[0].StartTime;
+                var cols = '';
+                var myData = {
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                         "linecode": '@Session["LineCode"]',
+                         "Fromtime": st,
+                         "Totime": dateTime,
+                    "Machinecode": machine,
+                    "Shift":shift
+         };
+         //alert(dateTime)
+          var R_url = '@Url.Action("Login", "Main")';
+        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+         var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    var HURL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+
+        
+
+         $.ajax({
+             type: 'POST',
+             url: HURL + 'api/Firstpassyield/GetTimeVariantdata',
+             data: myData,
+               headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+             dataType: 'json'
+         }).success(function (response) {
+             console.log(response);
+            
+            if (response.data.length != 0) {
+                document.getElementById("okparts_data1").style.display = "block";
+                document.getElementById("okparts_nodata1").style.display = "none";
+                $('#ok_mcno1').text(machine);
+                $('#ok_Line1').text('@Session["LineCode"]');
+
+
+                if ($.fn.DataTable.isDataTable('#datatable-okparts1')) {
+                    $('#datatable-okparts1').DataTable().clear().draw();
+                }
+
+                if ($.fn.DataTable.isDataTable('#datatable-okparts1')) {
+                    $('#datatable-okparts1').DataTable().destroy();
+                }
+
+                for (var i = 0; i < response.data.Table.length; i++) {
+
+                  // var num=i+1
+                    var newRow = $("<tr>");
+                    var cols = '';
+                    var sc = '';
+                    //var cols = $("<tr>");
+                    cols += "<td> " + response.data.Table[i].Date + "</td> ";
+                    cols += "<td> " + response.data.Table[i].Hour + "</td> ";
+                    cols += "<td> " + response.data.Table[i].Shift_Id + "</td> ";
+                    cols += "<td> " + response.data.Table[i].Variant_code + "</td> ";
+                    
+                    
+
+
+                    cols += "</tr>"
+                    //cols += "</tr>";
+                    newRow.append(cols);
+                    $("#okparts_details1").append(newRow);
+
+                    //okparts_datatable.row.add([num, response.data.Table[i].time_stamp, response.data.Table[i].count, response.data.Table[i]["Produced Qty"]]).draw();
+                }
+
+
+
+                var okparts_table1=$('#datatable-okparts1').DataTable({
+
+                    "responsive": true,
+                    "autoWidth": false,
+                    "searching": false,
+                    dom: 'frtip',
+
+                });
+                    $("#mymodal_okparts1").modal('show');
+            }
+
+
+            else {
+                //$(".custom_pre_error").text(response.msg);
+                $("#okparts_details1").empty();
+                    $("#mymodal_okparts1").modal('show');
+                document.getElementById("okparts_data1").style.display = "none";
+                document.getElementById("okparts_nodata1").style.display = "block";
+            }
+
+
+         }).error(function (response) {
+            // alert(response.status)
+             cols += "<h4>No data available </h4>";
+             //$("#variantsummary").html(cols);
+             $("#mymodal_okparts1").modal('show');
+         }).error(function (response) {
+             if (response.status == "401") {
+                 swal({
+                     icon: "warning",
+                     title: "Session Timeout",
+                     button: true,
+                     closeModal: false
+                 })
+                 window.location = R_url;
+             }
+             else {
+                 swal({
+                     icon: "warning",
+                     title: response.responseText,
+                     button: true,
+                     closeModal: false
+                 })
+
+             }
+            });
+    }
+
+
+
+</script>
+
+<script type="text/javascript">
+    var modal = document.getElementById("myModal");
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        $("#myModal").modal('hide');
+
+        //modal.style.display = "none";
+    }
+</script>
+<script type="text/javascript">
+    var modal2 = document.getElementById("mymodal_okparts");
+    // Get the <span> element that closes the modal
+    var span2 = document.getElementById("okpartsclose");
+    // When the user clicks on <span> (x), close the modal
+    span2.onclick = function () {
+        $("#mymodal_okparts").modal('hide');
+
+        //$('body').css({
+        //    overflow: 'visible'
+        //});
+    }
+</script>
+
+<script type="text/javascript">
+    var modal22 = document.getElementById("mymodal_okparts1");
+    // Get the <span> element that closes the modal
+    var span22 = document.getElementById("okpartsclose1");
+    // When the user clicks on <span> (x), close the modal
+    span22.onclick = function () {
+        $("#mymodal_okparts1").modal('hide');
+
+        //$('body').css({
+        //    overflow: 'visible'
+        //});
+    }
+</script>
+
+
+

@@ -1,0 +1,274 @@
+
+@{
+    ViewBag.Title = "OperatorEfficiencyLive";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #datatable-live-OPE thead th {
+        background-color: teal;
+        color: white;
+    }
+</style>
+<header class="page-header">
+    <h2>Operator Efficiency - Live</h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("NewDash","Main")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            @*<li><span>Production</span></li>
+                <li><span>RealTime Dashboard</span></li>
+                <li><span>Operator Efficiency</span></li>*@
+        </ol>
+    </div>
+</header>
+@if (ViewContext.Controller.HasPermission("OperatorEfficiencyLive-View"))
+{
+    <div class="row">
+        @*<button type="button" style="float:right;margin-left:2%" class="btn btn-default">OEE Historic<span class="shift"></span></button>*@
+        <input type="button" class="btn-info" onclick="location.href='/OperatorEfficiency/OperatorEfficiencyHistoricDashboard';" value="Historic-Operator Efficiency" style="float:right;text-decoration:none;margin-right:2%;background-color:black;border-style:none;" />
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">
+                        Asset :<span id="maccode"></span>
+                        @*<button type="button" style="float:right" class="btn btn-default">Last update time: <span class="updated_time"></span></button>*@
+                    </h2>
+                </header>
+                <div class="panel-body" >
+                    <table class="table table-bordered table-striped mb-none" id="datatable-live-OPE">
+                        <thead style="background-color:teal;color:white;">
+                            <tr>
+                                <th>S.NO</th>
+                                <th>Line</th>
+                                <th>Operation</th>
+                                <th>Operator Name</th>
+                                <th>Variant</th>
+                                <th>Expected Cycle Time(in sec.)</th>
+                                <th>Latest Cycle Time(in sec.)</th>
+                                <th>Target Production</th>
+                                <th>Total OK parts</th>
+                                <th>Total NOK parts</th>
+                            </tr>
+                        </thead>
+                        <tbody class="details"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <h2 class="panel-title">View Permission is denied</h2>
+    </div>
+}
+
+<!-- end: page -->
+<script src="~/assets1/javascripts/swal.js"></script>
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["signalr_url"]';
+    //$.getScript(URL + 'Scripts/jquery.signalR-2.4.1.min.js', function () {
+    //    $.getScript(URL + 'signalr/hubs/', function () {
+    //        // Declare a proxy to reference the hub.
+    //        $.connection.hub.url = URL + 'signalr';
+    //        var notifications = $.connection.PlantDigitizationhub;
+    //        //debugger;
+    //        // Create sssa function that the hub can call to broadcast messages.
+    //        notifications.client.updateDatas = function () {
+    //            getopelivedata()
+    //        };
+    //        // Start the connection.
+    //        $.connection.hub.start().done(function () {
+    //            getopelivedata();
+    //        }).fail(function (e) {
+    //            console.log(e);
+    //        });
+    //    });
+
+        function getopelivedata() {
+            //var vars = [], hash;
+            //var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            //for (var i = 0; i < hashes.length; i++) {
+            //    hash = hashes[i].split('?');
+            //    vars.push(hash[0]);
+            //    vars[hash[0]] = hash[1];
+            //}
+              var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+            var myData = {
+                "CompanyCode": '@Session["CompanyCode"]',
+                "PlantCode": '@Session["PlantCode"]',
+                "Line_code": '@Session["LineCode"]',
+            };
+
+            $('#maccode').html("");
+
+             $.ajax({
+                type: 'Post',
+                url: URL + 'api/OEE/check_holiday',
+                 data: myData,
+                 headers: {
+                     Authorization: 'Bearer ' + user1
+                 },
+
+                dataType: 'json'
+            }).success(function (response) {
+
+                if (response.data.length == 0)
+                {
+                     $.ajax({
+                type: 'POST',
+                url: URL + 'api/OperatorEfficiency/GetOPElivedatas',
+                headers: {
+                    Authorization: 'Bearer ' + user1
+                },
+                data: myData,
+                dataType: 'json'
+            }).success(function (response) {
+                //var rowsCnt = document.getElementById("datatable-live-OPE").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                //if (rowsCnt > 0) {
+                //    for (var i = 0; i < rowsCnt; i++) {
+                //        document.getElementById("datatable-live-OPE").deleteRow(1);
+                //    }
+                //}
+                var temp1 = 0;
+                if ($.fn.DataTable.isDataTable('#datatable-live-OPE')) {
+                    temp1 = temp1 + 1
+                    console.log(temp1)
+                    $('#datatable-live-OPE').DataTable().clear();
+                    $('#datatable-live-OPE').DataTable().destroy();
+                    }
+
+
+                if (response.data.length != 0) {
+                    //alert("inside")
+                    var j = 1;
+                    for (var i = 0; i < response.data.length; i++) {
+
+                        $('#maccode').text(response.data[0].machine_name);
+
+                        var newRow = $("<tr>");
+                        var cols = '';
+                        cols += "<td> " + j + "</td> ";
+                        cols += "<td> " + response.data[i].machine_name + "_" + response.data[i].Line_name + "</td> ";
+                        cols += "<td> " + response.data[i].Operation + "</td> ";
+                        cols += "<td> " + response.data[i].Operator_name + "</td> ";
+                        cols += "<td> " + response.data[i].variant_name + "</br>"+response.data[i].Variant_number+"</td> ";
+                        cols += "<td> " + response.data[i].Expected_cycle_time + "</td> ";
+                        cols += "<td> " + response.data[i].Latest_cycle_time + "</td> ";
+                        cols += "<td> " + response.data[i].Target_production + "</td> ";
+                        cols += "<td> " + response.data[i].Total_OK_parts + "</td> ";
+                        cols += "<td> " + response.data[i].Total_NOK_parts + "</td> ";
+                        cols += "</tr>";
+                        newRow.append(cols);
+                        $(".details").append(newRow);
+                        j++;
+                    }
+
+
+                    
+                   var livetable= $('#datatable-live-OPE').DataTable({
+
+                        "responsive": true,
+                        "autoWidth": false,
+                         scrollY: true,
+                            scrollX: true,
+                            scroller: true,
+                        "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]]
+
+                    });
+
+
+
+                    $('.updated_time').text(new Date().toLocaleString());
+                    $('.shift').text(response.data[0].shift_id);
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                    
+                }
+                else {
+                    //$(".custom_pre_error").text(response.msg);
+
+                    var rowsCnt = document.getElementById("datatable-live-OPE").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                    if (rowsCnt > 0) {
+                        for (var i = 0; i < rowsCnt; i++) {
+                            document.getElementById("datatable-live-OPE").deleteRow(1);
+                        }
+                    }
+
+
+                    var newRow = $("<tr>");
+                    var cols = '';
+                    cols += "<td colspan='10' style='text-align:center;font-weight:bold;background-color:burlywood;color:black;'> No Data Available </td> ";
+                    cols += "</tr>";
+                    newRow.append(cols);
+                    $(".details").append(newRow);
+                    $('.shift').text("N/A");
+                    $('#maccode').text("N/A");
+                    $('.updated_time').text(new Date().toLocaleString());
+                    $('.shift_n').show();
+                    $('.updated_time_n').show();
+                }
+            }).error(function (response) {
+                //console.log(response);
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            });
+                }
+                else
+                {
+                    var rowsCnt = document.getElementById("datatable-live-OPE").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
+                    if (rowsCnt > 0) {
+                        for (var i = 0; i < rowsCnt; i++) {
+                            document.getElementById("datatable-live-OPE").deleteRow(1);
+                        }
+                    }
+
+                     var newRow = $("<tr>");
+                    var cols = '';
+                    cols += "<td colspan='10' style='text-align:center;font-weight:bold;background-color:burlywood;color:black;'> "+response.data[0].holiday_name+" </td> ";
+                    cols += "</tr>";
+                    newRow.append(cols);
+                    $(".details").append(newRow);
+                    $('.shift').text("N/A");
+                    $('#maccode').text("N/A");
+                    $('.updated_time').text(new Date().toLocaleString());
+                   
+                }
+
+            });
+            $('.shift_n').show();
+            $('.updated_time_n').show();
+            setTimeout(getopelivedata, 120000);
+        }
+    //});
+    $(document).ready(function () {
+        getopelivedata();
+});
+</script>
+

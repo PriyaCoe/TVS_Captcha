@@ -1,0 +1,548 @@
+﻿@model IEnumerable<PlanDigitization_web.Models.Operations>
+@{ ViewBag.Title = "Operation_settings";
+                Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<header class="page-header">
+    <h2> Operation Settings </h2>
+    <div class="right-wrapper pull-right">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="@Url.Action("MainDashboard","MainDashboard")">
+                    <i class="fa fa-home"></i>
+                </a>
+            </li>
+            <li><span>Settings</span></li>
+            <li><span>Operation</span></li>
+        </ol>
+    </div>
+</header>
+
+<!-- Add New Operation-->
+<div class="row" id="divnew" style="display:none;">
+    <div class="col-md-12">
+        <form class="form" action="@Url.Action("Insert_Operation","UserSettings")" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">Add New Operation</h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Operation ID <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="OperationID" name="OperationID" class="form-control space" title="Operation ID" placeholder="Operation ID" required />
+                        </div>
+                        @*<label class="col-sm-2 control-label"> Machine <span class="required">*</span></label>
+                            <div class="col-sm-4">
+                                <select id="linecode" class="form-control" name="Line_Code" title="*"></select>
+                            </div>*@
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Operation Name <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="OperationName" id="OperationName" class="form-control space" title="Operation Name" placeholder="Operation Name" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Operation Description <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="OperationDescription" id="OperationDescription" class="form-control space" title="Operation Description" placeholder="Operation Description" required />
+                        </div>
+                    </div>
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Cancel</button>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </form>
+    </div>
+</div>
+
+<!-- Operation Details-->
+<div class="row" id="divdetails">
+    <div class="col-md-12">
+        <section class="panel">
+            <header class="panel-heading" style="background-color:teal;color:white;">
+                @if (ViewContext.Controller.HasPermission("OperationSetting-Add"))
+                {
+    <div class="panel-actions">
+        <button class="btn btn-primary" id="add"><i class="fa fa-plus" aria-hidden="true"> Add New</i></button>
+    </div>}
+                <h2 class="panel-title" style="color:white;">List of Operations : </h2>
+            </header>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="panel-body">
+                        @if (ViewContext.Controller.HasPermission("OperationSetting-View"))
+                        {
+            <table class="table table-bordered table-striped mb-none" id="datatable-default" data-swf-path="assets1/vendor/jquery-datatables/extras/TableTools/swf/copy_csv_xls_pdf.swf">
+                <thead style="background-color:teal;color:white;">
+                    <tr>
+                        <th class="centercls"> S.No </th>
+                        <th style="display:none;"></th>
+                        <th>Operation ID</th>
+                        <th> Operation Name</th>
+                        <th> Operation Description </th>
+                        <th style="text-align:center;width:150px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int RowNo = 0;}
+                    @foreach (var item in Model)
+                    {
+    <tr class="gradeX">
+        <td>
+            @{RowNo++;}@RowNo
+        </td>
+        <td class="OperationID" style="display:none;">
+            <span>@Html.Encode(item.Unique_id)</span>
+        </td>
+        <td>
+            <span>@Html.Encode(item.OperationID)</span>
+        </td>
+        <td>
+            <span>@Html.Encode(item.OperationName)</span>
+        </td>
+        <td>
+            <span>@Html.Encode(item.OperationDescription)</span>
+        </td>
+        <td style="text-align:center;">
+            @if (ViewContext.Controller.HasPermission("OperationSetting-Edit"))
+            {
+<button class="btn btn-primary" style="margin-top: 10px" id="edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>}
+            @if (ViewContext.Controller.HasPermission("OperationSetting-Delete"))
+            {
+<button class="btn btn-danger" style="margin-top: 10px" id="delete"><i class="fa fa-trash-o" aria-hidden="true"></i></button>}
+        </td>
+    </tr>}
+                </tbody>
+            </table> }
+                        else
+                        {
+            <h2>View permission is denied</h2>}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!--Edit Plant Details-->
+<div class="row" id="divedit" style="display:none;">
+    <div class="col-md-12">
+        <form class="form" action="@Url.Action("Update_Operation","UserSettings")" method="post">
+            <section class="panel">
+                <header class="panel-heading" style="background-color:teal;color:white;">
+                    <div class="panel-actions">
+                    </div>
+                    <h2 class="panel-title" style="color:white;">Update Operation Settings</h2>
+                </header>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"> Operation ID <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" id="eOperationID" name="OperationID" class="form-control space" title="Operation ID" placeholder="Operation ID" readonly required />
+                        </div>
+                        @*<label class="col-sm-2 control-label"> Machine <span class="required">*</span></label>
+                            <div class="col-sm-4">
+                                <select id="linecodeedit" class="form-control" name="Line_Code" title="*"></select>
+                            </div>*@
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" id="eUnique_id" name="Unique_id" />
+                        <label class="col-sm-2 control-label"> Operation Name <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="OperationName" id="eOperationName" class="form-control space" title="Operation Name" placeholder="Operation Name" required />
+                        </div>
+                        <label class="col-sm-2 control-label"> Operation Description <span class="required">*</span></label>
+                        <div class="col-sm-4">
+                            <input type="text" name="OperationDescription" id="eOperationDescription" class="form-control space" title="Operation Description" placeholder="Operation Description" required />
+                        </div>
+                    </div>
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3" style="text-align:center;">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="reset" id="cancel" class="btn btn-danger cancel">Cancel</button>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </form>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+<script src="~/assets1/javascripts/swal.js"></script>
+<script src="~/assets1/javascripts/swal_alert.js"></script>
+@if (@TempData["message"] != null)
+{
+<script type="text/javascript">
+    $(function () {
+        var msg = '@TempData["message"]';
+        if (msg == "Inserted") {
+            swal({
+                icon: "success",
+                title: "Details Added Successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "Updated") {
+            swal({
+                icon: "success",
+                title: "Details Updated Successfully...!",
+                button: true,
+                timer: 4500
+            })
+        }
+       else if (msg == "Already OperationID") {
+            swal({
+                icon: "error",
+                title: "Failed to Add.Operation ID already exists",
+                button: true,
+                timer: 4500
+            })
+        }
+        else if (msg == "Already OperationName") {
+            swal({
+                icon: "error",
+                title: "Failed to Add.Operation Name already exists",
+                button: true,
+                timer: 4500
+            })
+        }
+        else {
+            swal({
+                icon: "error",
+                title: "Failed to Add",
+                button: true,
+                timer: 4500
+            })
+        }
+    });
+</script>}
+<script type="text/javascript">
+    $("#add").click(function () {
+        $("#divnew").show();
+        $("#divdetails").hide();
+        $("#divedit").hide();
+    });
+
+    $(".cancel").click(function () {
+        $("#divnew").hide();
+        $("#divdetails").show();
+        $("#divedit").hide();
+    });
+
+    $(document).on("keydown", ".space", function (evt) {
+        var caretPos = $(this)[0].selectionStart
+        if (evt.keyCode == 32 && caretPos == 0) {
+            return false;
+        }
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+    $("body").on("click", "#edit", function () {
+        var row = $(this).closest("tr");
+        var ID = row.find(".OperationID span").html();
+
+        var myData = {
+            "QueryType": "Edit_Operation",
+            "Parameter": ID,
+            "CompanyCode": '@Session["CompanyCode"]',
+            "PlantCode": '@Session["PlantCode"]',
+            "LineCode": '@Session["LineCode"]'
+        };
+
+        $("#divedit").show();
+        $("#divnew").hide();
+        $("#divdetails").hide();
+         var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+             //$.ajax({
+             //    type: 'Get',
+             //    url: URL + 'api/UserSettings/GetEmployee',
+             //    headers: {
+             //        Authorization: 'Bearer ' + user1
+             //    },
+             //    dataType: 'json'
+             //}).success(function (response) {
+        $.ajax({
+            type: "POST",
+            url: URL + 'api/Values/User_settings_details',
+            data: myData,
+             headers: {
+                     Authorization: 'Bearer ' + user1
+                 },
+            dataType: "json",
+            beforeSend: function () {
+                $('.loading').show();
+            },
+            complete: function () {
+                $('.loading').hide();
+            },
+            success: function (response) {
+                $('#eUnique_id').val(response.data.Table[0].Unique_id);
+                $('#eOperationID').val(response.data.Table[0].OperationID);
+                $('#eOperationName').val(response.data.Table[0].OperationName);
+                $('#eOperationDescription').val(response.data.Table[0].OperationDescription);
+
+
+                 @*var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+
+                  var myData1 = {
+                        "Flag": "LineCode",
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                    };
+
+                //$.ajax({
+                //    type: 'Get',
+                //    url: URL + 'api/UserSettings/GetEmployee',
+                //    headers: {
+                //        Authorization: 'Bearer ' + user1
+                //    },
+                //    dataType: 'json'
+                //}).success(function (response3) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/Main/GetSettingdatas1',
+                        data: myData1,
+
+                        dataType: "json",
+                        success: function (response2) {
+                            //alert(response2)
+                            var s = '<option value="">Please Select</option>';
+
+                            for (var i = 0; i < response2.data.length; i++) {
+
+                                if (response2.data[i].Code == response.data.Table[0].Line_Code) {
+
+                                    s += '<option value="' + response2.data[i].Code + '" selected=selected>' + response2.data[i].Name + '</option>';
+                                }
+                                else {
+                                    s += '<option value="' + response2.data[i].Code + '">' + response2.data[i].Name + '</option>';
+                                }
+                            }
+                            $("#linecodeedit").html(s);
+                        },
+                        error: function (response2) {
+
+                        }
+                    }).error(function (response2) {
+                        if (response.status == "401") {
+                            swal({
+                                icon: "warning",
+                                title: "Session Timeout",
+                                button: true,
+                                closeModal: false
+                            })
+                            window.location = R_url;
+                        }
+                        else {
+                            swal({
+                                icon: "warning",
+                                title: response.responseText,
+                                button: true,
+                                closeModal: false
+                            })
+
+                        }
+                });*@
+
+
+
+
+            }
+            , error: function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+            }
+        });
+             //}).error(function (response) {
+             //    swal({
+             //        icon: "warning",
+             //        title: "Session Timeout",
+             //        button: true,
+             //        closeModal: false
+             //    })
+             //    window.location = R_url;
+             //});
+    });
+
+    $("body").on("click", "#delete", function () {
+        if (confirm("Do you want to Delete this Operation?")) {
+            var row = $(this).closest("tr");
+            var ID = row.find(".OperationID span").html();
+
+            var myData = {
+                "QueryType": "Delete_Operationsettings",
+                "Parameter": ID,
+                "CompanyCode": '@Session["CompanyCode"]',
+                         "PlantCode": '@Session["PlantCode"]',
+                         "LineCode": '@Session["LineCode"]'
+            };
+             var R_url = '@Url.Action("Login", "Main")';
+            var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+             //$.ajax({
+             //    type: 'Get',
+             //    url: URL + 'api/UserSettings/GetEmployee',
+             //    headers: {
+             //        Authorization: 'Bearer ' + user1
+             //    },
+             //    dataType: 'json'
+             //}).success(function (response) {
+            $.ajax({
+                type: "POST",
+                url: URL + 'api/Values/delete_User_settings_details',
+                data: myData,
+                 headers: {
+                     Authorization: 'Bearer ' + user1
+                 },
+                dataType: "json",
+                beforeSend: function () {
+                    $('.loading').show();
+                },
+                complete: function () {
+                    $('.loading').hide();
+                },
+                success: function (response) {
+                    swal({
+                        icon: "success",
+                        title: "Operation Settings Deleted Successfully...!",
+                        button: true,
+                        timer: 4500
+                    })
+                   window.location = '@Url.Action("Operation_settings", "UserSettings")';
+                }
+            }).error(function (response) {
+                if (response.status == "401") {
+                    swal({
+                        icon: "warning",
+                        title: "Session Timeout",
+                        button: true,
+                        closeModal: false
+                    })
+                    window.location = R_url;
+                }
+                else {
+                    swal({
+                        icon: "warning",
+                        title: response.responseText,
+                        button: true,
+                        closeModal: false
+                    })
+
+                }
+             });
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('.updated_time').text("N/A");
+        $('.shift').text("N/A");
+
+        if ($.fn.DataTable.isDataTable('#datatable-default')) {
+            $('#datatable-default').DataTable().destroy();
+        }
+
+
+        $('#datatable-default').DataTable({
+
+            "responsive": true,
+            "autoWidth": false,
+            scrollY: true,
+            scrollX: true,
+            scroller: true
+        });
+
+
+    });
+</script>
+
+<script type="text/javascript">
+    @*$(function () {
+
+        var URL = '@System.Configuration.ConfigurationManager.AppSettings["url"]';
+                    var myData = {
+                        "Flag": "LineCode",
+                        "CompanyCode": '@Session["CompanyCode"]',
+                        "PlantCode": '@Session["PlantCode"]',
+                    };
+                     var R_url = '@Url.Action("Login", "Main")';
+                        var user1 = '@Session["Token"]' + ':' + '@Session["UserName"]';
+                    //$.ajax({
+                    //     type: 'Get',
+                    //        url: URL + 'api/UserSettings/GetEmployee',
+                    //         headers: {
+                    //         Authorization: 'Bearer ' + user1
+                    //        },
+                    //     dataType: 'json'
+                    //}).success(function (response) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/Main/GetSettingdatas1',
+                        data: myData,
+
+                        dataType: "json",
+                        success: function (response) {
+                            var s = '<option value="">Select Line</option>';
+                            for (var i = 0; i < response.data.length; i++) {
+                                s += '<option value="' + response.data[i].Code + '">' + response.data[i].Name + '</option>';
+                            }
+                            $("#linecode").html(s);
+                        },
+                        error: function (response) {
+
+                        }
+                    }).error(function (response) {
+                        if (response.status == "401") {
+                            swal({
+                                icon: "warning",
+                                title: "Session Timeout",
+                                button: true,
+                                closeModal: false
+                            })
+                            window.location = R_url;
+                        }
+                        else {
+                            swal({
+                                icon: "warning",
+                                title: response.responseText,
+                                button: true,
+                                closeModal: false
+                            })
+
+                        }
+                    });
+
+    });*@
+</script>
