@@ -1,0 +1,246 @@
+CREATE PROCEDURE [dbo].[SP_toollife] 
+@Flag nvarchar(50),
+@linecode nvarchar(10)=null,
+@machine_code nvarchar(50)=null,
+@fromdate date=null,
+@todate date=null,
+@CompanyCode nvarchar(150)=null,
+@PlantCode nvarchar(150)=null,
+@RecommendationText nvarchar(150)=null,
+@Status nvarchar(150)=null,
+@ToolID nvarchar(150)=null
+As
+BEGIN
+	IF @Flag = 'custom'
+	BEGIN
+	
+		--SELECT B.Line_code,B.Make,B.ToolName,B.Machine_Code,B.Part_number,B.Classification,B.Conversion_parameter,b.ToolID,E.RecommendationText,B.SerialNo,C.CurrentUsage as 'lifeatpm',C.SerialNo,
+		----CAST((b.CurrentLifeCycle/B.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+		--CAST((E.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',
+		----CAST((((A.CurrentLifeCycle/B.Conversion_parameter))/(E.RatedLifeCycle/B.Conversion_parameter))* 100 AS decimal(18,2)) AS 'usage',
+		--B.UOM, ISNULL(CONVERT(varchar, C.LastMaintenaceDate, 23),'') AS 'lastmain'
+		--FROM tbl_Raw_Toollife AS A
+		--INNER JOIN tbl_toollist AS B ON A.ToolID=B.ToolID
+		--inner join tbl_toollist_child as e on A.toolID=E.ToolID
+		--LEFT JOIN tbl_ToolLife_Maintenace AS C ON A.ToolID=C.ToolID 
+		----AND C.ID IN (SELECT MAX(id) from
+		----tbl_ToolLife_Maintenace GROUP BY ToolID,RecommendationText) and e.RecommendationText=c.RecommendationText
+		--WHERE
+		---- A.id IN (SELECT MAX(id) from tbl_Raw_Toollife
+		----GROUP BY ToolID) and
+		--A.CompanyCode=@CompanyCode AND B.CompanyCode=@CompanyCode 
+		--AND A.Line_Code=@linecode AND A.Machine_Code=@machine_code AND A.PlantCode=@PlantCode AND B.PlantCode=@PlantCode
+		--AND A.date BETWEEN @fromdate AND @todate --and B.Active=1
+		--GROUP BY b.ToolID,A.Machine_Code,B.Line_code,
+		--B.Machine_Code,B.ToolName,B.Make,B.Part_number,B.Classification,B.Conversion_parameter,B.SerialNo,E.RatedLifeCycle,B.UOM,C.LastMaintenaceDate,B.UOM,
+		--E.RecommendationText,B.SerialNo,C.CurrentUsage,C.SerialNo
+
+		select a.Line_code,a.UOM,a.Make,a.ToolName,a.Machine_Code,a.Part_number,a.Classification,a.Conversion_parameter,b.RecommendationText,
+		a.ToolID,CAST((b.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',a.SerialNo,
+		(select TOP 1 aa.CurrentUsage from tbl_ToolLife_Maintenace as aa where aa.ToolID=a.ToolID AND 
+		b.RecommendationText=aa.RecommendationText AND aa.SerialNo=a.SerialNo order by ID desc) as 'lifeatpm',
+		(select TOP 1 CONVERT(varchar(50),aa.LastMaintenaceDate,103) from tbl_ToolLife_Maintenace as aa where aa.ToolID=a.ToolID AND
+		b.RecommendationText=aa.RecommendationText AND aa.SerialNo=a.SerialNo order by ID desc) AS 'lastmain',
+		(select TOP 1 ISNULL((cc.Status),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'Status',
+		(select TOP 1 ISNULL((cc.Remarks),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'Remarks',
+		(select count(*) from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and cc.RecommendationText=b.RecommendationText) 'PM_count'
+		from tbl_toollist as a 
+		left join tbl_toollist_child as b on a.ToolID=b.ToolID
+		left join tbl_ToolLife_Maintenace as c on a.ToolID=c.ToolID
+		where c.LastMaintenaceDate BETWEEN @fromdate AND @todate AND a.CompanyCode=@CompanyCode AND b.CompanyCode=@CompanyCode
+		AND c.CompanyCode=@CompanyCode and a.PlantCode=@PlantCode and b.PlantCode=@PlantCode AND a.Machine_Code=@machine_code AND a.Line_code='SIM'
+		GROUP BY a.Line_code,a.Make,a.ToolName,a.Machine_Code,a.Part_number,a.Classification,a.Conversion_parameter,
+		a.ToolID,b.RatedLifeCycle,a.SerialNo,b.RecommendationText,a.UOM
+	END
+	ELSE IF @Flag='PM_details'
+	BEGIN
+		select * from tbl_ToolLife_Maintenace where ToolID=@ToolID AND SerialNo=@Status
+		and CompanyCode=@CompanyCode and PlantCode=@PlantCode
+	END	
+	ELSE IF @Flag = 'preventive'
+	BEGIN
+		if @Status='all'
+		Begin
+			--SELECT B.Line_code,B.Make,B.ToolName,B.Machine_Code,B.Part_number,B.Classification,A.ToolID,E.RecommendationText,B.SerialNo,C.Status,C.CurrentUsage as 'lifeatpm',
+			----CAST((A.CurrentLifeCycle*B.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+			--CAST(((select TOP 1 aa.CurrentLifeCycle from tbl_Raw_Toollife as aa 
+			--where aa.ToolID=A.ToolID order by aa.ID desc)*B.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+			
+			--CAST((E.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',
+			--B.UOM,ISNULL(CONVERT(varchar, C.LastMaintenaceDate, 23),'') AS 'lastmain',ISNULL((C.IsReplaced),'') AS 'replaced',
+
+			--(select ISNULL((count(Active)),'') from tbl_toollist where toolid=A.ToolID and active=0)as 'noofreplce',
+			--ISNULL((C.Remarks),'') AS 'remark'  FROM tbl_Raw_Toollife AS A
+			--INNER JOIN tbl_toollist AS B ON A.ToolID=B.ToolID 
+			--inner join tbl_toollist_child as e on A.toolID=E.ToolID
+			--LEFT JOIN tbl_ToolLife_Maintenace AS C ON A.ToolID=C.ToolID AND C.ID IN (SELECT MAX(id) from tbl_ToolLife_Maintenace
+			--GROUP BY ToolID,RecommendationText) and e.RecommendationText=c.RecommendationText
+			--WHERE A.id IN (SELECT MAX(id) from tbl_Raw_Toollife
+			--GROUP BY ToolID) AND A.CompanyCode=@CompanyCode AND B.CompanyCode=@CompanyCode AND 
+			-- A.Line_Code=@linecode AND A.Machine_Code=@machine_code AND A.PlantCode=@PlantCode AND B.PlantCode=@PlantCode 
+			-- and B.Active='1'
+			-- GROUP BY A.ToolID,A.Machine_Code,A.CurrentLifeCycle,B.Line_code,B.Machine_Code,B.ToolName,B.Active,
+			--B.Make,B.Part_number,B.Classification,B.Conversion_parameter,C.LastMaintenaceDate,B.UOM,C.IsReplaced,C.No_of_Replacements,
+			--C.Remarks,E.RecommendationText,B.SerialNo,C.LastMaintenaceDate,B.UOM,C.IsReplaced,C.No_of_Replacements,C.Remarks,
+			--C.Status,E.RatedLifeCycle,C.CurrentUsage,e.ID
+			--order by e.ID asc
+
+			select a.Line_code,a.Make,a.ToolName,a.Machine_Code,a.Part_number,a.Classification,a.ToolID,b.RecommendationText,a.SerialNo,
+			CAST(((select TOP 1 aa.CurrentLifeCycle from tbl_Raw_Toollife as aa 
+			where aa.ToolID=a.ToolID and aa.Machine_Code=a.Machine_Code order by aa.ID desc)*a.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+			CAST((b.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',a.UOM,
+			(select ISNULL((count(Active)),'') from tbl_toollist where toolid=A.ToolID and active=0) as 'noofreplce',
+			(select TOP 1 ISNULL((cc.IsReplaced),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'replaced',
+			(select TOP 1 convert(varchar(50),ISNULL((cc.LastMaintenaceDate),''),103) from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID  and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'lastmain',
+			(select TOP 1 ISNULL((cc.Status),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'Status',
+			(select TOP 1 ISNULL((cc.Remarks),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'remark',
+			(select TOP 1 ISNULL((cc.CurrentUsage),'0') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText order by ID desc) 'lifeatpm'
+			from tbl_toollist as a 
+			left join tbl_toollist_child as b on a.ToolID=b.ToolID
+			where a.Active=1 and a.CompanyCode=@CompanyCode and b.CompanyCode=@CompanyCode and a.Machine_Code=@machine_code
+			and a.PlantCode=@PlantCode and b.PlantCode=@PlantCode
+
+
+			end
+		
+		else 
+			begin
+				--SELECT B.Line_code,B.Make,B.ToolName,B.Machine_Code,B.Part_number,B.Classification,A.ToolID,E.RecommendationText,B.SerialNo,C.Status,C.CurrentUsage as 'lifeatpm',
+
+				----CAST((A.CurrentLifeCycle*B.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+				--CAST(((select TOP 1 aa.CurrentLifeCycle from tbl_Raw_Toollife as aa 
+			 --   where aa.ToolID=A.ToolID order by aa.ID desc)*B.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+				--CAST((E.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',
+				--B.UOM,ISNULL(CONVERT(varchar, C.LastMaintenaceDate, 23),'') AS 'lastmain',ISNULL((C.IsReplaced),'') AS 'replaced',
+				--(select ISNULL((count(Active)),'') from tbl_toollist where toolid=A.ToolID and active=0)as 'noofreplce',
+		
+				--ISNULL((C.Remarks),'') AS 'remark'  FROM tbl_Raw_Toollife AS A
+				--INNER JOIN tbl_toollist AS B ON A.ToolID=B.ToolID 
+				--inner join tbl_toollist_child as e on A.toolID=E.ToolID 
+				--LEFT JOIN tbl_ToolLife_Maintenace AS C ON A.ToolID=C.ToolID AND C.ID IN (SELECT MAX(id) from tbl_ToolLife_Maintenace
+				--GROUP BY ToolID,RecommendationText) and e.RecommendationText=c.RecommendationText
+				--WHERE A.id IN (SELECT MAX(id) from tbl_Raw_Toollife
+				--GROUP BY ToolID) AND A.CompanyCode=@CompanyCode AND B.CompanyCode=@CompanyCode AND 
+				-- A.Line_Code=@linecode AND A.Machine_Code=@machine_code AND A.PlantCode=@PlantCode AND B.PlantCode=@PlantCode and B.Active='1' 
+				-- and e.Status=@Status
+				-- GROUP BY A.ToolID,A.Machine_Code,A.CurrentLifeCycle,B.Line_code,B.Machine_Code,B.ToolName,
+				--B.Make,B.Part_number,B.Classification,B.Conversion_parameter,C.LastMaintenaceDate,B.UOM,C.IsReplaced,
+				--C.No_of_Replacements,C.Remarks,E.RecommendationText,B.SerialNo,C.LastMaintenaceDate,B.UOM,C.IsReplaced,C.No_of_Replacements,
+				--C.Remarks,C.Status,E.RatedLifeCycle,C.CurrentUsage,e.ID
+				--order by e.ID Asc
+
+				select a.Line_code,a.Make,a.ToolName,a.Machine_Code,a.Part_number,a.Classification,a.ToolID,b.RecommendationText,a.SerialNo,
+				CAST(((select TOP 1 aa.CurrentLifeCycle from tbl_Raw_Toollife as aa 
+				where aa.ToolID=a.ToolID and aa.Machine_Code=a.Machine_Code order by aa.ID desc)*a.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+				CAST((b.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',a.UOM,
+				(select ISNULL((count(Active)),'') from tbl_toollist where toolid=A.ToolID and active=0) as 'noofreplce',
+				(select ISNULL((cc.IsReplaced),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText) 'replaced',
+				(select ISNULL((cc.LastMaintenaceDate),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText) 'lastmain',
+				(select ISNULL((cc.Status),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText) 'Status',
+				(select ISNULL((cc.Remarks),'') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText) 'remark',
+				(select ISNULL((cc.CurrentUsage),'0') from tbl_ToolLife_Maintenace as cc where cc.ToolID=a.ToolID and cc.SerialNo=a.SerialNo and b.RecommendationText=cc.RecommendationText) 'lifeatpm'
+				from tbl_toollist as a 
+				left join tbl_toollist_child as b on a.ToolID=b.ToolID
+				where a.Active=1 and a.CompanyCode=@CompanyCode and b.CompanyCode=@CompanyCode and a.Machine_Code=@machine_code
+				and a.PlantCode=@PlantCode and b.PlantCode=@PlantCode and b.Status=@Status
+
+			end
+		end
+	ELSE IF @Flag = 'EditTool'
+	BEGIN
+		SELECT B.Line_code,B.Make,B.ToolName,B.Machine_Code,B.Part_number,B.Classification,B.SerialNo,A.ToolID,E.RecommendationText,C.CurrentUsage as 'lifeatpm',
+		CAST((A.CurrentLifeCycle*B.Conversion_parameter) as decimal(18,2)) AS 'currentlifecle',
+		CAST((E.RatedLifeCycle) as decimal(18,2)) AS 'ratedlifecle',
+		B.UOM,ISNULL(CONVERT(varchar, C.LastMaintenaceDate, 23),'') AS 'lastmain',ISNULL((C.IsReplaced),'') AS 'replaced',
+		(select ISNULL((count(Active)),'') from tbl_toollist where toolid=A.ToolID and active=0)as 'noofreplce',		
+		ISNULL((C.Remarks),'') AS 'remark',ISNULL((C.Status),'') AS 'Status'  FROM tbl_Raw_Toollife AS A
+		INNER JOIN tbl_toollist AS B ON A.ToolID=B.ToolID 
+		inner join tbl_toollist_child as e on A.toolID=E.ToolID
+		LEFT JOIN tbl_ToolLife_Maintenace AS C ON A.ToolID=C.ToolID AND C.ID IN (SELECT MAX(id) from tbl_ToolLife_Maintenace
+		GROUP BY ToolID,RecommendationText) and e.RecommendationText=c.RecommendationText
+		WHERE A.id IN (SELECT MAX(id) from tbl_Raw_Toollife
+		GROUP BY ToolID) AND A.CompanyCode=@CompanyCode AND B.CompanyCode=@CompanyCode AND 
+		A.Line_Code=@linecode AND A.Machine_Code=@machine_code AND A.PlantCode=@PlantCode AND B.PlantCode=@PlantCode 
+		and e.RecommendationText=@RecommendationText and e.ToolID=@ToolID and B.Active='1'
+		GROUP BY A.ToolID,A.Machine_Code,A.CurrentLifeCycle,B.Line_code,B.Machine_Code,B.ToolName,B.SerialNo,B.Active,
+		B.Make,B.Part_number,B.Classification,B.Conversion_parameter,C.LastMaintenaceDate,B.UOM,C.IsReplaced,C.No_of_Replacements,C.Remarks,
+		E.RecommendationText,C.Status,C.CurrentUsage,E.RatedLifeCycle
+	END
+END
+
+GO
+
+
+
+
+
+
+------------------------------------------------
+
+
+CREATE PROCEDURE [dbo].[SP_toollife_maintenance]
+@ToolID varchar(150),
+@LastMaintenaceDate date=null,
+@IsReplaced varchar(10)=null,
+@No_of_Replacements int=null,
+@Currentusage decimal(18, 0)=null,
+@Remarks varchar(150)=null,
+@CompanyCode nvarchar(150)=null,
+@PlantCode nvarchar(150)=null,
+@Line_Code nvarchar(150)=null,
+@Status nvarchar(150)=null,
+@RecommendationText nvarchar(150)=null,
+@SerialNo nvarchar(150)=null,
+@NSerialNo nvarchar(150)=null
+--@SQLReturn nvarchar(50) output	
+As
+BEGIN
+Declare @result nvarchar(50)
+Declare @last_id int
+	Set @result=''
+	if @IsReplaced='yes' 
+	begin
+			Insert Into tbl_toollist(Machine_Code,ToolID,CompanyCode,PlantCode,SerialNo,Line_Code,ToolName,Make,UOM,Part_number,Classification,RatedLifeCycle,Conversion_Parameter,SubAssembly) 
+			select Machine_Code,@ToolID,@CompanyCode,@PlantCode,@NSerialNo,Line_Code,ToolName,Make,UOM,Part_number,Classification,RatedLifeCycle,Conversion_Parameter,SubAssembly
+			from tbl_Toollist where ToolID=@ToolID and SerialNo=@SerialNo
+			Insert Into tbl_ToolLife_Maintenace(ToolID,LastMaintenaceDate,IsReplaced,No_of_Replacements,Currentusage,Remarks,CompanyCode,PlantCode,Status,RecommendationText,SerialNo)
+			select @ToolID,(SELECT CAST(GETDATE() AS Date)),@IsReplaced,@No_of_Replacements,@Currentusage,@Remarks,@CompanyCode,@PlantCode,@Status,@RecommendationText,@SerialNo
+		--Values(@ToolID,@LastMaintenaceDate,@IsReplaced,@No_of_Replacements,@Currentusage,@Remarks,@CompanyCode,@PlantCode,@Status,@RecommendationText)
+
+			update tbl_toollist set Active=1 where ToolID=@ToolID and SerialNo=@NSerialNo 
+
+			update tbl_toollist set Active=0  where ToolID=@ToolID and SerialNo=@SerialNo
+
+			update tbl_toollist_child set Status=@Status WHERE ToolID=@ToolID and RecommendationText=@RecommendationText
+
+			set @last_id = (select TOP 1 ID from tbl_Raw_Toollife as aa where aa.ToolID=@ToolID order by ID desc)
+
+			update tbl_raw_toollife set CurrentLifeCycle='0' where ID=@last_id
+			--set @result='Updated'
+
+			
+	end
+	else  
+	Begin
+		Insert Into tbl_ToolLife_Maintenace(ToolID,LastMaintenaceDate,IsReplaced,No_of_Replacements,Currentusage,Remarks,CompanyCode,PlantCode,Status,RecommendationText,SerialNo)
+		select @ToolID,(SELECT CAST(GETDATE() AS Date)),@IsReplaced,@No_of_Replacements,@Currentusage,@Remarks,@CompanyCode,@PlantCode,@Status,@RecommendationText,@SerialNo
+	
+		--Values(@ToolID,@LastMaintenaceDate,@IsReplaced,@No_of_Replacements,@Currentusage,@Remarks,@CompanyCode,@PlantCode,@Status,@RecommendationText)
+		
+		update tbl_toollist_child set Status=@Status WHERE ToolID=@ToolID and RecommendationText=@RecommendationText
+
+		set @result='Updated'
+		end
+		--set @SQLReturn=@result
+END
+
+
+
+
+
+
+
+
+GO
+
+
